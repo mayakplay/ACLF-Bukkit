@@ -2,6 +2,7 @@ package com.mayakplay.aclf.annotation;
 
 import com.mayakplay.aclf.processor.BukkitEventListenerRegisterBeanPostProcessor;
 import com.mayakplay.aclf.processor.CommandControllerRegistererBeanPostProcessor;
+import com.mayakplay.aclf.processor.TranslatedAnnotationBeanPostProcessor;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -17,7 +18,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Configuration
 @ComponentScan
-@Import({BukkitEventListenerRegisterBeanPostProcessor.class, CommandControllerRegistererBeanPostProcessor.class})
+@Import({
+        BukkitEventListenerRegisterBeanPostProcessor.class,
+        CommandControllerRegistererBeanPostProcessor.class,
+        TranslatedAnnotationBeanPostProcessor.class
+})
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface ACLFConfiguration {}

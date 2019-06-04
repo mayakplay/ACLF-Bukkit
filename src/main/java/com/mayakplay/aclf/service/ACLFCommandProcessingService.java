@@ -28,7 +28,7 @@ import static com.mayakplay.aclf.service.ACLFCommandProcessingService.SenderType
  * Created by Mayakplay on 11.05.2019.
  */
 @Service
-class ACLFCommandProcessingService implements Listener {
+public class ACLFCommandProcessingService implements Listener {
 
     protected enum SenderType {CONSOLE, PLAYER_CHAT, PLAYER_CHANNEL}
 

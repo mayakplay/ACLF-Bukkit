@@ -6,9 +6,9 @@ import java.util.Map;
 
 public interface TranslationService {
 
-    String getTranslated(Plugin plugin, String string);
+    String getTranslated(String key);
 
-    String getTranslated(String pluginName, String string);
+    String getTranslated(Plugin plugin, String key);
 
     Map<String, Map<String, String>> getTranslationInfoMap();
 

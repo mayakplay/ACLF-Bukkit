@@ -49,7 +49,7 @@ public final class StaticUtils {
      */
     public static void registerCommand(String name) {
         try {
-            registerCommand(name,  ACLF.getACLF());
+            registerCommand(name, ACLF.getACLF());
         } catch (Exception e) {
             e.printStackTrace();
         }

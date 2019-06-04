@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author mayakplay
@@ -15,12 +16,13 @@ public final class AddonDefinition {
 
     private boolean isCompleted = false;
 
+    private Locale currentLocale;
     private ClassLoader classLoader;
     private Plugin plugin;
     private Class<?> configurationClass;
     private AnnotationConfigApplicationContext context;
 
-    private List<Object> resources;
+    private List<Object> registeredResources;
 
     public AddonDefinition(ClassLoader classLoader, Plugin plugin, Class<?> configurationClass) {
         this.classLoader = classLoader;
@@ -45,7 +47,7 @@ public final class AddonDefinition {
         return configurationClass;
     }
 
-    //region Description
+    //region Equals
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

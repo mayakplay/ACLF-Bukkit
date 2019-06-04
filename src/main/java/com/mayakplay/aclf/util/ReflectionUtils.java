@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.util;
 
+import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
 import org.reflections.scanners.SubTypesScanner;
@@ -8,12 +9,29 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import java.util.Objects;
+
 /**
  * @author mayakplay
  * @version 0.1.1
  * @since 25.05.2019.
  */
 public class ReflectionUtils {
+
+    @Nullable
+    public static Class<?> getMethodCallerClass() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        try {
+            return Class.forName(stackTrace[3].getClassName());
+        } catch (ClassNotFoundException | ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Objects.requireNonNull(getMethodCallerClass()).getSimpleName());
+    }
 
     public static Reflections getReflectionsFor(ClassLoader classLoader, String mainClassPackage) {
         return new Reflections(new ConfigurationBuilder()

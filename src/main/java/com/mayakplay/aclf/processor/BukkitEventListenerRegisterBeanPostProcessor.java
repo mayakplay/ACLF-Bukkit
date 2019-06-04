@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.processor;
 
-import com.mayakplay.aclf.ACLFPluginAdapter;
+import com.mayakplay.aclf.ACLF;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ public final class BukkitEventListenerRegisterBeanPostProcessor implements BeanP
     @Override
     public Object postProcessBeforeInitialization(@NotNull Object bean, String beanName) throws BeansException {
         if (bean instanceof Listener) {
-            ACLFPluginAdapter plugin = ACLFPluginAdapter.getPlugin(ACLFPluginAdapter.class);
+            ACLF plugin = ACLF.getPlugin(ACLF.class);
             Bukkit.getPluginManager().registerEvents((Listener) bean, plugin);
         }
         return bean;

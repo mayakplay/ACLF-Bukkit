@@ -2,5 +2,5 @@ name: ACLFramework
 description: Simplify your plugin development
 version: 0.0.1
 author: mayakplay
-main: com.mayakplay.aclf.ACLFPluginAdapter
+main: com.mayakplay.aclf.ACLF
 api-version: 1.7.10

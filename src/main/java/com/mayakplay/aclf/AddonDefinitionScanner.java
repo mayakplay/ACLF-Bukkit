@@ -2,12 +2,15 @@ package com.mayakplay.aclf;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.mayakplay.aclf.annotation.ACLFConfiguration;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -34,22 +37,15 @@ public class AddonDefinitionScanner {
     private final Map<ClassLoader, Plugin> pluginHashMap;
 
     /**
-     * Plugins with ACLF dependency in 'plugin.yml'
-     */
-    private final List<Plugin> dependentPlugins;
-
-    /**
      * ACLF spring mainContext.
      */
     private AnnotationConfigApplicationContext mainContext;
 
     AddonDefinitionScanner() {
-        dependentPlugins =      ImmutableList.copyOf(findDependentPlugins());
+        mainContext = new AnnotationConfigApplicationContext();
+
         pluginHashMap =          ImmutableMap.copyOf(scanForClassLoaders());
         addonDefinitionHashMap = ImmutableMap.copyOf(getAddonDefinitionMap());
-
-        mainContext = new AnnotationConfigApplicationContext();
-        //endregion
 
         //region WARNs If dependent plugin does not contains configuration
         for (Map.Entry<ClassLoader, Plugin> entry : pluginHashMap.entrySet()) {
@@ -61,16 +57,12 @@ public class AddonDefinitionScanner {
         }
         //endregion
 
-        try {
-            registerContext();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        registerContext();
     }
 
-    private void registerContext() throws ClassNotFoundException {
+    private void registerContext() {
 
-        mainContext.setClassLoader(this.getClass().getClassLoader());
+        mainContext.setClassLoader(ACLFSpringConfig.class.getClassLoader());
         mainContext.register(ACLFSpringConfig.class);
         mainContext.refresh();
 
@@ -119,7 +111,7 @@ public class AddonDefinitionScanner {
      * Fills {@link #pluginHashMap}
      */
     private HashMap<ClassLoader, Plugin> scanForClassLoaders() {
-        return dependentPlugins.stream()
+        return getDependentPlugins().stream()
                 .collect(Collectors
                         .toMap(
                                 plugin -> plugin.getClass().getClassLoader(),
@@ -130,28 +122,19 @@ public class AddonDefinitionScanner {
                 );
     }
 
-    /**
-     * Scans all plugins, looking for dependencies on ACLF.
-     * Add dependent plugins to hash map
-     *
-     * Code from 'plugin.yml'
-     * <code>
-     *     depend:
-     *      - ACLFramework
-     * </code>
-     */
-    private List<Plugin> findDependentPlugins() {
-        return Arrays.stream(Bukkit.getPluginManager().getPlugins())
-                .filter(plugin -> plugin.getDescription().getDepend().contains(ACLF.getACLF().getName()))
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
     public int getCandidatesCount() {
-        return dependentPlugins.size();
+        return ACLF.getDependentPlugins().size();
     }
 
     public List<Plugin> getDependentPlugins() {
-        return ImmutableList.copyOf(dependentPlugins);
+        return ImmutableList.copyOf(ACLF.getDependentPlugins());
+    }
+
+    public List<Plugin> getDependentPluginsWithAclf() {
+        LinkedList<Plugin> plugins = Lists.newLinkedList(getDependentPlugins());
+        plugins.addFirst(ACLF.getACLF());
+
+        return ImmutableList.copyOf(plugins);
     }
 
     /**
@@ -160,7 +143,7 @@ public class AddonDefinitionScanner {
     private Set<Class<?>> scanForAddonsConfigurationClassesSet() {
         final Set<Class<?>> configurationClasses = new LinkedHashSet<>();
 
-        for (Plugin plugin : dependentPlugins) {
+        for (Plugin plugin : getDependentPlugins()) {
             String mainClassPackage = ReflectionUtils.packageFromClassName(plugin.getDescription().getMain());
             Reflections reflections = ReflectionUtils.getReflectionsFor(plugin.getClass().getClassLoader(), mainClassPackage);
             Set<Class<?>> packageClasses = reflections.getTypesAnnotatedWith(ACLFConfiguration.class);
@@ -170,4 +153,9 @@ public class AddonDefinitionScanner {
         return configurationClasses;
     }
 
+    @Nullable
+    public Plugin getPluginByClass(@NotNull Class<?> pluginClass) {
+        ClassLoader classLoader = pluginClass.getClassLoader();
+        return pluginHashMap.get(classLoader);
+    }
 }

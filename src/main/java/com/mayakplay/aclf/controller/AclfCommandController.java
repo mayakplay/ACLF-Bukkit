@@ -4,15 +4,21 @@ import com.mayakplay.aclf.annotation.ChatMapping;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.annotation.TailArgumentCommand;
 import com.mayakplay.aclf.exception.ACLFCommandException;
-import com.mayakplay.aclf.pojo.ConsoleCommandResponse;
+import com.mayakplay.aclf.pojo.CommandResponse;
+import com.mayakplay.aclf.service.interfaces.TranslationService;
 
-@CommandController("test")
+@CommandController("aclf")
 public class AclfCommandController {
 
-    @ChatMapping("t")
-    @TailArgumentCommand
-    public void command(ConsoleCommandResponse response, String playerName, String message) {
+    private final TranslationService translationService;
 
+    public AclfCommandController(TranslationService translationService) {
+        this.translationService = translationService;
+    }
+
+    @ChatMapping("reload")
+    @TailArgumentCommand
+    public void reloadTranslationCommandMethod(CommandResponse response) {
 
 
         throw new ACLFCommandException("");

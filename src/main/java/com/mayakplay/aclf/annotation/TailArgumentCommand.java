@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.annotation;
 
+
 import com.mayakplay.aclf.service.ACLFCommandProcessingService;
 
 import java.lang.annotation.Documented;
