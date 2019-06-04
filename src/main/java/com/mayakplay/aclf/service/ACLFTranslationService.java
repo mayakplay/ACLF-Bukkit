@@ -4,18 +4,15 @@ import com.google.common.collect.Lists;
 import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.service.interfaces.TranslationService;
+import com.mayakplay.aclf.util.StaticUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 import static com.mayakplay.aclf.util.ReflectionUtils.getMethodCallerClass;
 
@@ -23,11 +20,13 @@ import static com.mayakplay.aclf.util.ReflectionUtils.getMethodCallerClass;
 public class ACLFTranslationService implements TranslationService, BeanPostProcessor {
 
     /**
-     * PluginName, [Translation name, translation]
+     * Plugin, [Translation name, translation]
      */
-    private Map<Plugin, Map<String, String>> translationInfoMap;
+    private final Map<Plugin, Map<String, String>> translationInfoMap;
 
     public ACLFTranslationService() {
+        translationInfoMap = new HashMap<>();
+
         try {
             System.out.println("teststetqedfqwef");
             init();
@@ -36,14 +35,7 @@ public class ACLFTranslationService implements TranslationService, BeanPostProce
         }
     }
 
-    /**
-     * contains current lang file ->
-     * contains default lang file ->
-     * contains any lang file ->
-     * contains no lang files
-     */
     private void init() throws FileNotFoundException {
-
         LinkedList<Plugin> plugins = new LinkedList<>(ACLF.getDependentPlugins());
         plugins.addFirst(ACLF.getACLF());
 
@@ -64,6 +56,21 @@ public class ACLFTranslationService implements TranslationService, BeanPostProce
 
                 File currentLangFile = getCurrentLangFile(langFilesList, plugin);
 
+                Yaml yaml = new Yaml();
+
+                InputStream inputStream = new FileInputStream(currentLangFile);
+                Map<String, String> load = yaml.load(inputStream);
+
+                if (load != null)
+                    translationInfoMap.put(plugin, new HashMap<>(load));
+            }
+        }
+
+        for (Map.Entry<Plugin, Map<String, String>> entry : translationInfoMap.entrySet()) {
+            System.out.println("Translations for: " + entry.getKey().getName());
+
+            for (Map.Entry<String, String> stringEntry : entry.getValue().entrySet()) {
+                System.out.println(" - " + stringEntry.getKey() + " = " + stringEntry.getValue());
             }
         }
     }
@@ -94,7 +101,8 @@ public class ACLFTranslationService implements TranslationService, BeanPostProce
 
     @Override
     public String getTranslated(String key) {
-        return getTranslated(ACLF.getPluginByClass(getMethodCallerClass()), key);
+        Plugin pluginByClass = ACLF.getPluginByClass(getMethodCallerClass());
+        return getTranslated(pluginByClass, key);
     }
 
     @Override
@@ -104,12 +112,17 @@ public class ACLFTranslationService implements TranslationService, BeanPostProce
     }
 
     @Override
-    public Map<String, Map<String, String>> getTranslationInfoMap() {
-        return null;
+    public Map<Plugin, Map<String, String>> getTranslationInfoMap() {
+        return StaticUtils.getImmutableMapWithInnerMapInValue(translationInfoMap);
     }
 
     @Override
     public void reload() {
-
+        translationInfoMap.clear();
+        try {
+            init();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

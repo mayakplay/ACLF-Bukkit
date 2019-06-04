@@ -10,7 +10,7 @@ public interface TranslationService {
 
     String getTranslated(Plugin plugin, String key);
 
-    Map<String, Map<String, String>> getTranslationInfoMap();
+    Map<Plugin, Map<String, String>> getTranslationInfoMap();
 
     void reload();
 

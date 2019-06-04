@@ -33,7 +33,15 @@ public final class ACLF extends JavaPlugin {
 
     @Nullable
     public static Plugin getPluginByClass(Class<?> pluginClass) {
-        return addonDefinitionContainer.getPluginByClass(pluginClass);
+        for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+            if (plugin.getClass().getClassLoader().equals(pluginClass.getClassLoader())) {
+                System.out.println(plugin.getClass().getClassLoader());
+                System.out.println(pluginClass.getClassLoader());
+                return plugin;
+            }
+        }
+        return null;
+
     }
 
     @Nullable

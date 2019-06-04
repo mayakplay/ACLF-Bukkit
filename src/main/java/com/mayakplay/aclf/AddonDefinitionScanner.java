@@ -156,6 +156,6 @@ public class AddonDefinitionScanner {
     @Nullable
     public Plugin getPluginByClass(@NotNull Class<?> pluginClass) {
         ClassLoader classLoader = pluginClass.getClassLoader();
-        return pluginHashMap.get(classLoader);
+        return pluginHashMap.getOrDefault(classLoader, null);
     }
 }

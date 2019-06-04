@@ -2,6 +2,7 @@ package com.mayakplay.aclf.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.mayakplay.aclf.annotation.Translated;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.pojo.*;
@@ -31,6 +32,9 @@ import static com.mayakplay.aclf.service.ACLFCommandProcessingService.SenderType
 public class ACLFCommandProcessingService implements Listener {
 
     protected enum SenderType {CONSOLE, PLAYER_CHAT, PLAYER_CHANNEL}
+
+    @Translated
+    private static final String SOMETHING_STUPID = "";
 
     //region Processing
     private boolean startCommandHandling(CommandSender sender, String commandMessage, SenderType type) {
@@ -76,7 +80,6 @@ public class ACLFCommandProcessingService implements Listener {
     }
 
     private void processCommand(CommandSender sender, CommandDefinition definition, String argumentsMessage, SenderType senderType) {
-
         checkAccess(definition, sender, senderType);
 
         List<Object> argumentsObjects = processArguments(definition, sender, argumentsMessage);
