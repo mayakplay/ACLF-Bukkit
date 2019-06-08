@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public final class ChannelCommandReceiveEvent extends Event {
 
@@ -17,6 +18,7 @@ public final class ChannelCommandReceiveEvent extends Event {
         this.command = command;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;

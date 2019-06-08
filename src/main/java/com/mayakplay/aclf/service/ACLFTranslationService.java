@@ -41,8 +41,6 @@ public class ACLFTranslationService implements TranslationService, BeanPostProce
 
         for (Plugin plugin : plugins) {
 
-            System.out.println(plugin.getName());
-
             File pluginDataFolder = plugin.getDataFolder();
             File pluginLangFolder = new File(pluginDataFolder, "lang");
 

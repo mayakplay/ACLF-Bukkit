@@ -3,11 +3,13 @@ package com.mayakplay.aclf.annotation;
 import com.mayakplay.aclf.pojo.ACLFPlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static com.mayakplay.aclf.annotation.CommandController.SCOPE_SENDER;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -34,8 +36,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target(TYPE)
 @Retention(RUNTIME)
+@Scope(SCOPE_SENDER)
 @Component
 public @interface CommandController {
+
+    String SCOPE_SENDER = "sender";
 
     /**
      * TODO: javadoc

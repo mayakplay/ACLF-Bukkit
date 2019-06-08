@@ -1,6 +1,7 @@
 package com.mayakplay.aclf;
 
 import com.google.common.collect.ImmutableList;
+import com.mayakplay.aclf.event.ContextsCreationCompletionEvent;
 import com.mayakplay.aclf.event.TickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -56,6 +57,7 @@ public final class ACLF extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        //Dependent plugins setting
         dependentPlugins =      ImmutableList.copyOf(findDependentPlugins());
 
         //Counts plugins with ACLF dependency
@@ -64,13 +66,18 @@ public final class ACLF extends JavaPlugin {
                 .filter(s -> s.equalsIgnoreCase(this.getName()))
                 .count();
 
+        //Start message printing
         printGreetingMessage(getDescription().getVersion(), candidatesCount, currentLocale.getLanguage(), getServer().getName());
 
         //Register addons scanner
         addonDefinitionContainer = new AddonDefinitionScanner();
 
+        //Completion event calling
+        Bukkit.getPluginManager().callEvent(new ContextsCreationCompletionEvent());
+
         //Starts tick emulation.
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this::onTick, 1L, 0);
+
     }
 
     /**

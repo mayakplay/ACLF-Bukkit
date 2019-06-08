@@ -19,7 +19,7 @@ import java.lang.reflect.Modifier;
  * @since 03.06.2019.
  */
 @Component
-public class TranslatedAnnotationBeanPostProcessor implements BeanPostProcessor {
+public class TranslatedAnnotationBeanPostProcessor<T> implements BeanPostProcessor {
 
     private final TranslationService translationService;
 
@@ -35,6 +35,10 @@ public class TranslatedAnnotationBeanPostProcessor implements BeanPostProcessor 
             Translated annotation = field.getAnnotation(Translated.class);
 
             if (annotation != null && field.getType().equals(String.class)) {
+                if (!Modifier.isFinal(field.getModifiers())) {
+                    System.out.println("TODO: translation warning: field \"" + bean.getClass().getSimpleName() + "." + field.getName() + "\" must be final");
+                }
+
                 String translatedKey = annotation.value();
 
                 if (translatedKey.isEmpty())
@@ -43,14 +47,11 @@ public class TranslatedAnnotationBeanPostProcessor implements BeanPostProcessor 
 
                 Plugin pluginByClass = ACLF.getPluginByClass(bean.getClass());
 
-                //region Test
-                System.out.println(pluginByClass + "testtesttest");
-                if (pluginByClass != null)
-                    System.out.println(pluginByClass.getName() + "testwqefqwefqwefqwefqwef");
-                //endregion
-
                 String translated = translationService.getTranslated(pluginByClass, translatedKey);
-                if (translated == null) translated = translatedKey;
+                if (translated == null) {
+                    System.out.println("TODO: translation warning: translation for key \"" + translatedKey + "\" does not found");
+                    translated = translatedKey;
+                }
 
                 try {
                     //region Взлом жопы

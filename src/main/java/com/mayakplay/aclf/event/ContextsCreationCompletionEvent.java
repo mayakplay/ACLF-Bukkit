@@ -5,22 +5,13 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by Mayakplay on 07.02.2019.
+ * @author mayakplay
+ * @version 0.0.1
+ * @since 05.06.2019.
  */
-public final class TickEvent extends Event {
+public final class ContextsCreationCompletionEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private byte tickNum;
-
-    public TickEvent(byte tickNum) {
-        super();
-        this.tickNum = tickNum;
-    }
-
-    public TickEvent(boolean isAsync, byte tickNum) {
-        super(isAsync);
-        this.tickNum = tickNum;
-    }
 
     @NotNull
     @Override
@@ -32,7 +23,4 @@ public final class TickEvent extends Event {
         return handlers;
     }
 
-    public byte getTickNum() {
-        return tickNum;
-    }
 }
