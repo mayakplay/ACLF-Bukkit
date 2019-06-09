@@ -2,13 +2,13 @@ package com.mayakplay.aclf.processor;
 
 import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.TranslatedString;
+import com.mayakplay.aclf.infrastructure.InfrastructureComponent;
 import com.mayakplay.aclf.service.interfaces.TranslationService;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,7 +18,7 @@ import java.lang.reflect.Modifier;
  * @version 0.0.1
  * @since 03.06.2019.
  */
-@Component
+@InfrastructureComponent
 public class TranslatedAnnotationBeanPostProcessor<T> implements BeanPostProcessor {
 
     private final TranslationService translationService;

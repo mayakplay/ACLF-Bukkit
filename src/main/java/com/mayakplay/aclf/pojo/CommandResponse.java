@@ -1,11 +1,13 @@
 package com.mayakplay.aclf.pojo;
 
+import lombok.Getter;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by Mayakplay on 10.05.2019.
  */
+@Getter
 public class CommandResponse {
 
     @NotNull private CommandSender sender;
@@ -21,31 +23,5 @@ public class CommandResponse {
         this.subCommandName = subCommandName;
         this.message = argsMessage;
     }
-
-    public CommandResponse ok(String... message) {
-        return this;
-    }
-
-    //region Getters
-    @NotNull
-    public CommandSender getSender() {
-        return sender;
-    }
-
-    @NotNull
-    public String getCommandName() {
-        return commandName;
-    }
-
-    @NotNull
-    public String getSubCommandName() {
-        return subCommandName;
-    }
-
-    @NotNull
-    public String getMessage() {
-        return message;
-    }
-    //endregion
 
 }

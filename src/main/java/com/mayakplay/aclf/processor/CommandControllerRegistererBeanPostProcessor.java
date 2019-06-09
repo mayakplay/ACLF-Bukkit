@@ -13,14 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Component
 public class CommandControllerRegistererBeanPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
     private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
@@ -40,7 +38,7 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
             ChannelMapping channelMappingAnnotation = method.getAnnotation(ChannelMapping.class);
             CommandMapping bothMappingAnnotation = method.getAnnotation(CommandMapping.class);
 
-            String commandName = controllerAnnotation.value();
+            String commandName = "";//controllerAnnotation.value();
             String subCommandName = getSubCommandNameThrowsIfAnnotationDuplication(
                     chatMappingAnnotation, channelMappingAnnotation, bothMappingAnnotation);
 
