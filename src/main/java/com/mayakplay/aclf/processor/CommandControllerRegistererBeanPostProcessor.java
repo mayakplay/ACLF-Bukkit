@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.processor;
 
-import com.mayakplay.aclf.annotation.BothMapping;
+import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.ChannelMapping;
 import com.mayakplay.aclf.annotation.ChatMapping;
 import com.mayakplay.aclf.annotation.CommandController;
@@ -38,7 +38,7 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
         for (Method method : bean.getClass().getDeclaredMethods()) {
             ChatMapping chatMappingAnnotation = method.getAnnotation(ChatMapping.class);
             ChannelMapping channelMappingAnnotation = method.getAnnotation(ChannelMapping.class);
-            BothMapping bothMappingAnnotation = method.getAnnotation(BothMapping.class);
+            CommandMapping bothMappingAnnotation = method.getAnnotation(CommandMapping.class);
 
             String commandName = controllerAnnotation.value();
             String subCommandName = getSubCommandNameThrowsIfAnnotationDuplication(
@@ -103,7 +103,7 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
     private String getSubCommandNameThrowsIfAnnotationDuplication(
             ChatMapping chatMappingAnnotation,
             ChannelMapping channelMappingAnnotation,
-            BothMapping bothMappingAnnotation
+            CommandMapping bothMappingAnnotation
     ) throws ACLFCriticalException {
         boolean isChatMapping = chatMappingAnnotation != null;
         boolean isChannelMapping = channelMappingAnnotation != null;

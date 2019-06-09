@@ -6,6 +6,9 @@ import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.pojo.*;
 import com.mayakplay.aclf.processor.CommandControllerRegistererBeanPostProcessor;
+import com.mayakplay.aclf.type.ArgumentMistakeType;
+import com.mayakplay.aclf.type.SenderType;
+import lombok.AllArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -16,6 +19,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,15 +27,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.mayakplay.aclf.service.ACLFCommandProcessingService.SenderType.*;
-
 /**
  * Created by Mayakplay on 11.05.2019.
  */
 @Service
+@AllArgsConstructor
+@Deprecated
 public class ACLFCommandProcessingService implements Listener {
 
-    protected enum SenderType {CONSOLE, PLAYER_CHAT, PLAYER_CHANNEL}
+    private final ApplicationContext context;
 
     //region Processing
     private boolean startCommandHandling(CommandSender sender, String commandMessage, SenderType type) {
@@ -107,26 +111,26 @@ public class ACLFCommandProcessingService implements Listener {
 
         //region Players only checking
         //                                    ↓ - the difference is here
-        if (definition.hasPlayerOnlyFlag() && senderType.equals(CONSOLE)) {
+        if (definition.hasPlayerOnlyFlag() && senderType.equals(SenderType.CONSOLE)) {
             throw new ACLFCommandException(definition.getDescriptionDefinition().getPlayersOnlyMessage());
         }
         //endregion
 
         //region Console only checking
         //                                     ↓ - the difference is here
-        if (definition.hasConsoleOnlyFlag() && !senderType.equals(CONSOLE)) {
+        if (definition.hasConsoleOnlyFlag() && !senderType.equals(SenderType.CONSOLE)) {
             throw new ACLFCommandException(definition.getDescriptionDefinition().getConsoleOnlyMessage());
         }
         //endregion
 
         //region Chat only checking
-        if (definition.hasChatOnlyFlag() && senderType.equals(PLAYER_CHANNEL)) {
+        if (definition.hasChatOnlyFlag() && senderType.equals(SenderType.PLAYER_CHANNEL)) {
             throw new ACLFCommandException(definition.getDescriptionDefinition().getChatOnlyMessage());
         }
         //endregion
 
         //region Channel only checking
-        if (definition.hasChannelOnlyFlag() && senderType.equals(PLAYER_CHAT)) {
+        if (definition.hasChannelOnlyFlag() && senderType.equals(SenderType.PLAYER_CHAT)) {
             throw new ACLFCommandException(definition.getDescriptionDefinition().getChannelOnlyMessage());
         }
         //endregion
@@ -142,7 +146,7 @@ public class ACLFCommandProcessingService implements Listener {
 
         final ImmutableList<String> argumentStringList = ImmutableList.copyOf(Arrays.asList(split));
         final List<Object> parsedObjects = new ArrayList<>();
-        final List<MistakeType> mistakeTypes = new ArrayList<>();
+        final List<ArgumentMistakeType> mistakeTypes = new ArrayList<>();
 
         final List<ArgumentDefinition> argumentDefinitionList = definition.getArgumentDefinitionList();
 
@@ -153,7 +157,7 @@ public class ACLFCommandProcessingService implements Listener {
             Object object = null;
 
             if (argumentDefinition.isParsedFromString()) {
-                MistakeType mistakeType;
+                ArgumentMistakeType mistakeType;
 
                 if (argumentString != null) {
                     //region Tail arg processing
@@ -169,9 +173,9 @@ public class ACLFCommandProcessingService implements Listener {
                     //endregion
 
                     object = parseFromGson(argumentString.trim(), argumentDefinition.getType());
-                    mistakeType = object == null ? MistakeType.EXCEPTION : MistakeType.OK;
+                    mistakeType = object == null ? ArgumentMistakeType.EXCEPTION : ArgumentMistakeType.OK;
                 } else {
-                    mistakeType = MistakeType.NOT_SPECIFIED;
+                    mistakeType = ArgumentMistakeType.NOT_SPECIFIED;
                 }
                 mistakeTypes.add(mistakeType);
 
@@ -184,7 +188,7 @@ public class ACLFCommandProcessingService implements Listener {
 
         }
 
-        if (mistakeTypes.contains(MistakeType.EXCEPTION) || mistakeTypes.contains(MistakeType.NOT_SPECIFIED)) throwUsage(definition, mistakeTypes);
+        if (mistakeTypes.contains(ArgumentMistakeType.EXCEPTION) || mistakeTypes.contains(ArgumentMistakeType.NOT_SPECIFIED)) throwUsage(definition, mistakeTypes);
         return parsedObjects;
     }
 
@@ -224,12 +228,12 @@ public class ACLFCommandProcessingService implements Listener {
 
     //region Usage
 
-    private void throwUsage(@NotNull CommandDefinition definition, @NotNull List<MistakeType> mistakesList) throws ACLFCommandException {
+    private void throwUsage(@NotNull CommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
         StringBuilder argumentsStringBuilder = new StringBuilder();
 
         List<ArgumentDefinition> stringParsedArgumentDefinitionList = definition.getStringParsedArgumentDefinitionList();
         for (int i = 0; i < stringParsedArgumentDefinitionList.size(); i++) {
-            MistakeType mistakeType = mistakesList.get(i) != null ? mistakesList.get(i) : MistakeType.NOT_SPECIFIED;
+            ArgumentMistakeType mistakeType = mistakesList.get(i) != null ? mistakesList.get(i) : ArgumentMistakeType.NOT_SPECIFIED;
             ArgumentDefinition argumentDefinition = stringParsedArgumentDefinitionList.get(i);
 
             argumentsStringBuilder
@@ -255,7 +259,7 @@ public class ACLFCommandProcessingService implements Listener {
 
     @EventHandler
     private void serverCommandEvent(ServerCommandEvent event) {
-        boolean isStarted = startCommandHandling(event.getSender(), event.getCommand(), CONSOLE);
+        boolean isStarted = startCommandHandling(event.getSender(), event.getCommand(), SenderType.CONSOLE);
 
         if (isStarted) event.setCommand("aclf");
     }
@@ -265,21 +269,5 @@ public class ACLFCommandProcessingService implements Listener {
         startCommandHandling(event.getSender(), event.getCommand(), SenderType.PLAYER_CHANNEL);
     }
     //endregion
-
-    protected enum MistakeType {
-        OK(ChatColor.GREEN),
-        NOT_SPECIFIED(ChatColor.GRAY),
-        EXCEPTION(ChatColor.DARK_RED);
-
-        private ChatColor chatColor;
-
-        MistakeType(ChatColor chatColor) {
-            this.chatColor = chatColor;
-        }
-
-        public ChatColor getChatColor() {
-            return chatColor;
-        }
-    }
 
 }

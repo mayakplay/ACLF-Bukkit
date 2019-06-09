@@ -1,18 +1,31 @@
 package com.mayakplay.aclf.annotation;
 
+import com.mayakplay.aclf.type.MappingPrivacy;
+import org.springframework.core.annotation.AliasFor;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Documented at {@link CommandController}
+ * Composed annotation that used to
+ * shortcuts {@code @CommandMapping(privacy = MappingPrivacy.CHANNEL)}
+ *
+ * @see CommandMapping
+ * @see CommandController
+ *
+ * Date: 09.06.2019<br/>
+ * @author Mayakplay
  */
 @Retention(RUNTIME)
-@Target(METHOD)
+@Target({METHOD, TYPE})
+@CommandMapping(privacy = MappingPrivacy.CHANNEL)
 public @interface ChannelMapping {
 
+    @AliasFor(annotation = CommandMapping.class, value = "value")
     String value();
 
 }

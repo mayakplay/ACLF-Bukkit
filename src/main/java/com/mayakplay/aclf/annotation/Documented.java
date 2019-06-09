@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.service.ACLFCommandProcessingService;
+import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -21,7 +21,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author Mayakplay
  *
  * @see CommandController
- * @see ACLFCommandProcessingService
+ * @see CommandMapping
+ * @see CommandProcessingService
  */
 @Retention(RUNTIME)
 @Target({METHOD, TYPE})

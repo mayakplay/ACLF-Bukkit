@@ -1,7 +1,7 @@
 package com.mayakplay.aclf.annotation;
 
 
-import com.mayakplay.aclf.service.ACLFCommandProcessingService;
+import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * the tagged method is not a command.
  *
  * @see CommandController
- * @see ACLFCommandProcessingService
+ * @see CommandProcessingService
  *
  * Date: 12.05.2019<br/>
  * @author Mayakplay

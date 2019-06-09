@@ -1,5 +1,7 @@
 package com.mayakplay.aclf.annotation;
 
+import com.mayakplay.aclf.stereotype.ArgumentParser;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -23,5 +25,10 @@ public @interface Argument {
      * If value is empty returns parameter type simple name - {@link Class#getSimpleName()}
      */
     String name() default "";
+
+    /**
+     *
+     */
+    Class<? extends ArgumentParser> processor();
 
 }

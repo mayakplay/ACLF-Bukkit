@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @since 05.06.2019.
  */
 @Component
-public class CommandSenderScope implements Scope {
+public final class CommandSenderScope implements Scope {
 
     @NotNull
     @Override

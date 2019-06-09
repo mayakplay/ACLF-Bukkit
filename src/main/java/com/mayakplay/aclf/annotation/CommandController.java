@@ -1,8 +1,5 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.pojo.ACLFPlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -14,25 +11,20 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * <H1>Components:</H1>
+ * Controller type annotation
  *
- * <H2>Reserved params:</H2>
- * <li>{@link ACLFPlayer}</li>
- * <li>{@link CommandSender}</li>
- * <li>{@link Player}</li>
+ * @see CommandMapping
+ * @see ChatMapping
+ * @see ChannelMapping
  *
- * <H2>Method mapping annotations:</H2>
- * <li>{@link ChannelMapping} - will be available through channel messages</li>
- * <li>{@link ChatMapping}    - will be available via chat</li>
- * <li>{@link BothMapping}    - will be available via chat and channel</li>
+ * @see OpsOnly
+ * @see Permitted
+ * @see Documented
  *
- * <H2>Method specification annotations:</H2>
- * <li>{@link OpsOnly}        - will be available for operators ONLY</li>
- * <li>{@link Permitted}      - command will be available if the performer has enough rights</li>
- * <li>{@link Documented}     - custom documentation</li>
+ * @see Argument
  *
- * <H2>Argument annotation:</H2>
- * <li>{@link Argument}</li>
+ * Date: 09.06.2019<br/>
+ * @author Mayakplay
  */
 @Target(TYPE)
 @Retention(RUNTIME)
@@ -41,10 +33,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface CommandController {
 
     String SCOPE_SENDER = "sender";
-
-    /**
-     * TODO: javadoc
-     */
-    String value();
 
 }

@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({FIELD, TYPE_USE})
-public @interface Translated {
+public @interface TranslatedString {
 
     String value() default "";
 

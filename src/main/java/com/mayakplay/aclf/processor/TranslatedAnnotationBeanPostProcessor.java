@@ -1,7 +1,7 @@
 package com.mayakplay.aclf.processor;
 
 import com.mayakplay.aclf.ACLF;
-import com.mayakplay.aclf.annotation.Translated;
+import com.mayakplay.aclf.annotation.TranslatedString;
 import com.mayakplay.aclf.service.interfaces.TranslationService;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +32,7 @@ public class TranslatedAnnotationBeanPostProcessor<T> implements BeanPostProcess
     public Object postProcessBeforeInitialization(@NotNull Object bean, String beanName) throws BeansException {
 
         for (Field field : bean.getClass().getDeclaredFields()) {
-            Translated annotation = field.getAnnotation(Translated.class);
+            TranslatedString annotation = field.getAnnotation(TranslatedString.class);
 
             if (annotation != null && field.getType().equals(String.class)) {
                 if (!Modifier.isFinal(field.getModifiers())) {

@@ -9,4 +9,6 @@ public interface Warner {
 
     void addInitMessage(String string);
 
+    void printInitWarnings();
+
 }
