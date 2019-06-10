@@ -4,10 +4,10 @@ import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.TranslatedString;
 import com.mayakplay.aclf.infrastructure.InfrastructureComponent;
 import com.mayakplay.aclf.service.interfaces.TranslationService;
+import lombok.AllArgsConstructor;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import java.lang.reflect.Field;
@@ -19,18 +19,13 @@ import java.lang.reflect.Modifier;
  * @since 03.06.2019.
  */
 @InfrastructureComponent
-public class TranslatedAnnotationBeanPostProcessor<T> implements BeanPostProcessor {
+@AllArgsConstructor
+public class TranslatedAnnotationBeanPostProcessor implements BeanPostProcessor {
 
     private final TranslationService translationService;
 
-    @Autowired
-    public TranslatedAnnotationBeanPostProcessor(TranslationService translationService) {
-        this.translationService = translationService;
-    }
-
     @Override
     public Object postProcessBeforeInitialization(@NotNull Object bean, String beanName) throws BeansException {
-
         for (Field field : bean.getClass().getDeclaredFields()) {
             TranslatedString annotation = field.getAnnotation(TranslatedString.class);
 

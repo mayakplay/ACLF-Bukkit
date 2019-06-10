@@ -24,8 +24,7 @@ public final class ACLF extends JavaPlugin {
     private byte tickCounter = 0;
     private static AddonDefinitionScanner addonDefinitionContainer;
 
-    private static final Locale currentLocale = Locale.US;
-    private static final Locale defaultLocale = Locale.US;
+    private static final Locale serverLocale = Locale.US;
 
     @NotNull
     public static ACLF getACLF() {
@@ -67,7 +66,7 @@ public final class ACLF extends JavaPlugin {
                 .count();
 
         //Start message printing
-        printGreetingMessage(getDescription().getVersion(), candidatesCount, currentLocale.getLanguage(), getServer().getName());
+        printGreetingMessage(getDescription().getVersion(), candidatesCount, serverLocale.getLanguage(), getServer().getName());
 
         //Register addons scanner
         addonDefinitionContainer = new AddonDefinitionScanner();
@@ -100,12 +99,8 @@ public final class ACLF extends JavaPlugin {
         return ACLF.getACLF().dependentPlugins;
     }
 
-    public static Locale getCurrentLocale() {
-        return currentLocale;
-    }
-
-    public static Locale getDefaultLocale() {
-        return defaultLocale;
+    public static Locale getServerLocale() {
+        return serverLocale;
     }
 
     /**

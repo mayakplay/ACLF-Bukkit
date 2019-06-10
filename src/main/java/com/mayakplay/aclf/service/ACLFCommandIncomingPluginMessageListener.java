@@ -7,13 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ACLFCommandIncomingPluginMessageListener implements PluginMessageListener {
 
-    @Autowired
     public ACLFCommandIncomingPluginMessageListener() {
         Bukkit.getMessenger().registerIncomingPluginChannel(ACLF.getACLF(), "ACLF_COMMANDS", this);
     }
