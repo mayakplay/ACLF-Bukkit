@@ -19,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @see TranslationService
  */
 @Retention(RUNTIME)
-@Target({FIELD, TYPE_USE, ANNOTATION_TYPE})
+@Target({FIELD, TYPE_USE, ANNOTATION_TYPE, PACKAGE})
 public @interface TranslatedString {
 
     String value() default "";

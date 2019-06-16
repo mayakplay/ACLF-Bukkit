@@ -6,14 +6,15 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Created by Mayakplay on 12.05.2019.
  */
-public final class ArgumentDefinition {
+@Deprecated
+public final class DeprecatedArgumentDefinition {
 
     private final String name;
     private final Class<?> type;
     private final boolean parsedFromString;
     private final boolean isTail;
 
-    public ArgumentDefinition(Class<?> type, boolean parsedFromString, @Nullable Argument argumentAnnotation, boolean isTail) {
+    public DeprecatedArgumentDefinition(Class<?> type, boolean parsedFromString, @Nullable Argument argumentAnnotation, boolean isTail) {
         this.type = type;
         this.parsedFromString = parsedFromString;
         @Nullable Argument argumentAnnotation1 = argumentAnnotation;

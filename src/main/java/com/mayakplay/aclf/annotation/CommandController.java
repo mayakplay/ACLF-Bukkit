@@ -1,6 +1,5 @@
 package com.mayakplay.aclf.annotation;
 
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -28,10 +27,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target(TYPE)
 @Retention(RUNTIME)
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Scope(CommandController.COMMAND_SENDER_SCOPE)
 @Component
 public @interface CommandController {
 
-
+    String COMMAND_SENDER_SCOPE = "sender";
 
 }

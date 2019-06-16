@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mayakplay.aclf.annotation.ACLFConfiguration;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
+import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import com.mayakplay.aclf.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,6 +13,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.*;
@@ -57,10 +60,10 @@ public class AddonDefinitionScanner {
         }
         //endregion
 
-        registerContext();
+        registerContexts();
     }
 
-    private void registerContext() {
+    private void registerContexts() {
 
         mainContext.setClassLoader(ACLFSpringConfig.class.getClassLoader());
         mainContext.register(ACLFSpringConfig.class);
@@ -76,9 +79,29 @@ public class AddonDefinitionScanner {
             addonContext.register(addonDefinition.getConfigurationClass());
 
             addonContext.setParent(mainContext);
-            addonContext.refresh();
+//            addonContext.refresh();
+
+            addonDefinition.setContext(addonContext);
+
+            refreshContext(addonDefinition);
         }
 
+    }
+
+    private void refreshContext(AddonDefinition addonDefinition) {
+        AnnotationConfigApplicationContext context = addonDefinition.getContext();
+
+        //Searching for infrastructure BPPs
+        Map<String, Object> beansWithAnnotation = mainContext.getBeansWithAnnotation(InfrastructurePostProcessor.class);
+
+        //Loop adding main BPPs to child contexts
+        beansWithAnnotation.values().stream()
+                .filter(bean -> bean instanceof BeanPostProcessor)
+                .map(bean -> (BeanFactoryPostProcessor) bean)
+                .forEach(context::addBeanFactoryPostProcessor);
+
+        //Finalize. Refreshing the context
+        context.refresh();
     }
 
     private HashMap<ClassLoader, AddonDefinition> getAddonDefinitionMap() throws ACLFCriticalException {

@@ -5,7 +5,7 @@ import com.mayakplay.aclf.annotation.ChannelMapping;
 import com.mayakplay.aclf.annotation.ChatMapping;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
-import com.mayakplay.aclf.pojo.CommandDefinition;
+import com.mayakplay.aclf.pojo.DeprecatedCommandDefinition;
 import com.mayakplay.aclf.util.StaticUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,10 +23,11 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
 
     private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
-    private static final Map<String, Map<String, CommandDefinition>> commandDefinitionsContainer = new LinkedHashMap<>();
+    private static final Map<String, Map<String, DeprecatedCommandDefinition>> commandDefinitionsContainer = new LinkedHashMap<>();
 
     @Override
     public Object postProcessBeforeInitialization(@NotNull Object bean, String beanName) throws BeansException {
+        System.out.println(bean.getClass().getSimpleName());
         CommandController controllerAnnotation = bean.getClass().getAnnotation(CommandController.class);
 
         if (controllerAnnotation == null) return bean;
@@ -67,8 +68,8 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
             }
             //endregion
 
-            CommandDefinition commandDefinition = new CommandDefinition(
-                    commandName, subCommandName, chatOnlyFlag, channelOnlyFlag, bean, method);
+            DeprecatedCommandDefinition commandDefinition = new DeprecatedCommandDefinition(
+                    commandName, subCommandName, chatOnlyFlag, channelOnlyFlag, bean.getClass(), method);
 
 
             registerCommand(commandDefinition);
@@ -79,12 +80,12 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
         return bean;
     }
 
-    private void registerCommand(CommandDefinition commandDefinition) {
+    private void registerCommand(DeprecatedCommandDefinition commandDefinition) {
         Bukkit.getConsoleSender().sendMessage(commandDefinition.toString());
         String command = commandDefinition.getCommandName();
         String subCommand = commandDefinition.getSubCommandName();
 
-        Map<String, CommandDefinition> stringRegisteredCommandMap = commandDefinitionsContainer.computeIfAbsent(command, k -> new HashMap<>());
+        Map<String, DeprecatedCommandDefinition> stringRegisteredCommandMap = commandDefinitionsContainer.computeIfAbsent(command, k -> new HashMap<>());
 
         //region Command existence checking
         if (stringRegisteredCommandMap.containsKey(subCommand)) {
@@ -118,7 +119,7 @@ public class CommandControllerRegistererBeanPostProcessor implements BeanPostPro
 
     }
 
-    public static Map<String, Map<String, CommandDefinition>> getCommandDefinitionsContainer() {
+    public static Map<String, Map<String, DeprecatedCommandDefinition>> getCommandDefinitionsContainer() {
         return StaticUtils.getImmutableMapWithInnerMapInValue(commandDefinitionsContainer);
     }
 

@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.service;
+package com.mayakplay.aclf.infrastructure;
 
 import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ACLFCommandIncomingPluginMessageListener implements PluginMessageListener {
+public class IncomingPluginMessageListener implements PluginMessageListener {
 
-    public ACLFCommandIncomingPluginMessageListener() {
+    public IncomingPluginMessageListener() {
         Bukkit.getMessenger().registerIncomingPluginChannel(ACLF.getACLF(), "ACLF_COMMANDS", this);
     }
 

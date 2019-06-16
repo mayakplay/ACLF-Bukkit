@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 import static org.bukkit.ChatColor.AQUA;
 import static org.bukkit.ChatColor.YELLOW;
 
-public final class CommandDefinition {
+@Deprecated
+public final class DeprecatedCommandDefinition {
 
     @NotNull
     private final String commandName;
@@ -30,13 +31,13 @@ public final class CommandDefinition {
     private final Set<String> permissionSet;
 
     @NotNull
-    private final Object controllerBean;
+    private final Class<?> controllerClass;
 
     @NotNull
     private final Method method;
 
     @NotNull
-    private final CommandDescriptionDefinition commandDescriptionDefinition;
+    private final DeprecatedCommandDescriptionDefinition commandDescriptionDefinition;
 
     private final boolean chatOnlyFlag;
     private final boolean channelOnlyFlag;
@@ -50,14 +51,14 @@ public final class CommandDefinition {
     private int argumentsCount;
 
     @NotNull
-    private final List<ArgumentDefinition> argumentDefinitionList;
+    private final List<DeprecatedArgumentDefinition> argumentDefinitionList;
 
-    public CommandDefinition(@NotNull String commandName, @NotNull String subCommandName,
-                             boolean chatOnlyFlag, boolean channelOnlyFlag,
-                             @NotNull Object controllerBean, @NotNull Method method) {
+    public DeprecatedCommandDefinition(@NotNull String commandName, @NotNull String subCommandName,
+                                       boolean chatOnlyFlag, boolean channelOnlyFlag,
+                                       @NotNull Class<?> controllerClass, @NotNull Method method) {
         this.commandName = commandName;
         this.subCommandName = subCommandName;
-        this.controllerBean = controllerBean;
+        this.controllerClass = controllerClass;
 
         this.chatOnlyFlag = chatOnlyFlag;
         this.channelOnlyFlag = channelOnlyFlag;
@@ -72,7 +73,7 @@ public final class CommandDefinition {
 
         scanMethodForDefinitions();
         scanMethodArguments();
-        this.commandDescriptionDefinition = new CommandDescriptionDefinition(this);
+        this.commandDescriptionDefinition = new DeprecatedCommandDescriptionDefinition(this);
 
         if (playerSenderOnlyFlag && consoleSenderOnlyFlag)
             throw new ACLFCriticalException("Command can not be only for player and only for console at the same time. [" + commandName + ":" + subCommandName + "]");
@@ -83,8 +84,6 @@ public final class CommandDefinition {
      * Sets {@link #opsOnlyFlag} and fills {@link #permissionSet}
      */
     private void scanMethodForDefinitions() {
-        Class<?> controllerClass = controllerBean.getClass();
-
         //region OpsOnly setting
         OpsOnly opsOnlyAnnotation = controllerClass.getAnnotation(OpsOnly.class);
         if (opsOnlyAnnotation == null) opsOnlyAnnotation = method.getAnnotation(OpsOnly.class);
@@ -119,7 +118,7 @@ public final class CommandDefinition {
 
             Argument annotation = parameter.getAnnotation(Argument.class);
 
-            ArgumentDefinition argumentDefinition = new ArgumentDefinition(parameter.getType(), parsedFromString, annotation, isTail);
+            DeprecatedArgumentDefinition argumentDefinition = new DeprecatedArgumentDefinition(parameter.getType(), parsedFromString, annotation, isTail);
 
             argumentDefinitionList.add(argumentDefinition);
 
@@ -132,7 +131,7 @@ public final class CommandDefinition {
 
     //region Getters
     @NotNull
-    public CommandDescriptionDefinition getDescriptionDefinition() {
+    public DeprecatedCommandDescriptionDefinition getDescriptionDefinition() {
         return commandDescriptionDefinition;
     }
 
@@ -169,6 +168,7 @@ public final class CommandDefinition {
         return consoleSenderOnlyFlag;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public boolean hasFlags() {
         return playerSenderOnlyFlag ||
                consoleSenderOnlyFlag ||
@@ -182,17 +182,22 @@ public final class CommandDefinition {
     }
 
     @NotNull
-    public List<ArgumentDefinition> getArgumentDefinitionList() {
+    public List<DeprecatedArgumentDefinition> getArgumentDefinitionList() {
         return ImmutableList.copyOf(argumentDefinitionList);
     }
 
     @NotNull
-    public List<ArgumentDefinition> getStringParsedArgumentDefinitionList() {
+    public List<DeprecatedArgumentDefinition> getStringParsedArgumentDefinitionList() {
         return ImmutableList.copyOf(
                 argumentDefinitionList.stream()
-                        .filter(ArgumentDefinition::isParsedFromString)
+                        .filter(DeprecatedArgumentDefinition::isParsedFromString)
                         .collect(Collectors.toList())
         );
+    }
+
+    public int getFullCommandNameLength() {
+        String fullCommand = commandName + subCommandName;
+        return fullCommand.trim().length();
     }
 
     @NotNull
@@ -206,8 +211,8 @@ public final class CommandDefinition {
     }
 
     @NotNull
-    public Object getControllerBean() {
-        return controllerBean;
+    public Class<?> getControllerClass() {
+        return controllerClass;
     }
 
     @NotNull
@@ -215,7 +220,6 @@ public final class CommandDefinition {
         return method;
     }
     //endregion
-
 
     @Override
     public String toString() {
@@ -229,7 +233,7 @@ public final class CommandDefinition {
                 .append(AQUA)
                 .append(" from ")
                 .append(ChatColor.YELLOW)
-                .append(getControllerBean().getClass().getSimpleName())
+                .append(getControllerClass().getSimpleName())
                 .append(".")
                 .append(getMethod().getName())
                 .append("()");

@@ -41,24 +41,28 @@ public @interface Documented {
     /**
      * A message will be displayed when a player uses the console command.
      */
+    @TranslatedString
     String playersOnlyMessage() default DEFAULT_PLAYERS_ONLY_MESSAGE;
 
     /**
      * The message will be displayed to the console
      * if the command has been used, is intended only for the players.
      */
+    @TranslatedString
     String consoleOnlyMessage() default DEFAULT_CONSOLE_ONLY_MESSAGE;
 
     /**
      * This message will be displayed when
      * sender does not have enough permissions to use command
      */
+    @TranslatedString
     String noPermissionsMessage() default DEFAULT_NO_PERMISSIONS_MESSAGE;
 
     /**
      * This message will appear when the player
      * sent the command intended for operators is not the operator
      */
+    @TranslatedString
     String opsOnlyMessage() default DEFAULT_OPS_ONLY_MESSAGE;
 
     /**
@@ -72,6 +76,7 @@ public @interface Documented {
      * {@value COMMAND_NAME} will replaced with command name.
      * "command subCommand" or "command"
      */
+    @TranslatedString
     String usage() default DEFAULT_USAGE_MESSAGE;
 
 }

@@ -5,7 +5,8 @@ import org.bukkit.ChatColor;
 /**
  * Created by Mayakplay on 10.05.2019.
  */
-public final class CommandDescriptionDefinition {
+@Deprecated
+public final class DeprecatedCommandDescriptionDefinition {
 
     private boolean hasDisplayedInHelp;
 
@@ -17,9 +18,9 @@ public final class CommandDescriptionDefinition {
     private String chatOnlyMessage;
     private String channelOnlyMessage;
 
-    private final CommandDefinition commandDefinition;
+    private final DeprecatedCommandDefinition commandDefinition;
 
-    public CommandDescriptionDefinition(CommandDefinition commandDefinition) {
+    public DeprecatedCommandDescriptionDefinition(DeprecatedCommandDefinition commandDefinition) {
         this.commandDefinition = commandDefinition;
 
         scanDescriptionInCommandDefinition();
@@ -61,10 +62,7 @@ public final class CommandDescriptionDefinition {
         return channelOnlyMessage;
     }
 
-    public String getUsageMessage(CommandDefinition definition, String argumentsString) {
-
-
-
+    public String getUsageMessage(DeprecatedCommandDefinition definition, String argumentsString) {
         return ChatColor.WHITE + "Usage: " + definition.getCommandName() + " " + definition.getSubCommandName() + " " + argumentsString;
     }
 }

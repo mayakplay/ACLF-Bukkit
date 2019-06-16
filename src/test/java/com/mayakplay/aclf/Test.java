@@ -1,10 +1,6 @@
 package com.mayakplay.aclf;
 
 import com.mayakplay.aclf.annotation.ChannelMapping;
-import com.mayakplay.aclf.annotation.CommandMapping;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-
-import java.lang.reflect.Method;
 
 /**
  * @author mayakplay
@@ -14,14 +10,13 @@ import java.lang.reflect.Method;
 public class Test {
 
     public static void main(String[] args) throws Exception {
-        Method prikolMethod = Test.class.getDeclaredMethod("test");
-
-        CommandMapping commandMappingAnnotation = AnnotatedElementUtils.findMergedAnnotation(prikolMethod, CommandMapping.class);
-
-        if (commandMappingAnnotation != null) {
-            System.out.println(commandMappingAnnotation);
-        }
-
+//        Method prikolMethod = Test.class.getDeclaredMethod("test");
+//
+//        CommandMapping commandMappingAnnotation = AnnotatedElementUtils.findMergedAnnotation(prikolMethod, CommandMapping.class);
+//
+//        if (commandMappingAnnotation != null) {
+//            System.out.println(commandMappingAnnotation);
+//        }
 
     }
 

@@ -8,6 +8,7 @@ import com.mayakplay.aclf.pojo.*;
 import com.mayakplay.aclf.processor.CommandControllerRegistererBeanPostProcessor;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
+import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.SenderType;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -28,29 +29,30 @@ import java.util.Map;
 /**
  * Created by Mayakplay on 11.05.2019.
  */
+@SuppressWarnings("Duplicates")
 @Deprecated
 public class DeprecatedACLFCommandProcessingService implements Listener, CommandProcessingService {
 
     //region Processing
     @Override
-    public boolean process(String message, CommandSender sender, SenderType senderType) {
-        Map<String, Map<String, CommandDefinition>> commandDefinitionsContainer = CommandControllerRegistererBeanPostProcessor.getCommandDefinitionsContainer();
+    public CommandProcessOutput process(String message, CommandSender sender, SenderType senderType) {
+        Map<String, Map<String, DeprecatedCommandDefinition>> commandDefinitionsContainer = CommandControllerRegistererBeanPostProcessor.getCommandDefinitionsContainer();
 
         String[] s = message.split(" ");
 
-        if (s.length == 0) return false;
+        if (s.length == 0) return null;
 
         String commandNameFromMessage = s[0].toLowerCase();
         String subCommandNameFromMessage = s.length > 1 ? s[1].toLowerCase() : "";
 
-        if (!commandDefinitionsContainer.containsKey(commandNameFromMessage)) return false;
+        if (!commandDefinitionsContainer.containsKey(commandNameFromMessage)) return null;
 
         if (!commandDefinitionsContainer.get(commandNameFromMessage).containsKey(subCommandNameFromMessage)) {
             if (commandDefinitionsContainer.get(commandNameFromMessage).containsKey("")) subCommandNameFromMessage = "";
-            else return false;
+            else return null;
         }
 
-        CommandDefinition commandDefinition = commandDefinitionsContainer.get(commandNameFromMessage).get(subCommandNameFromMessage);
+        DeprecatedCommandDefinition commandDefinition = commandDefinitionsContainer.get(commandNameFromMessage).get(subCommandNameFromMessage);
 
         int commandNameLength = commandNameFromMessage.length() + subCommandNameFromMessage.length();
         if (!subCommandNameFromMessage.isEmpty()) commandNameLength++;
@@ -72,10 +74,10 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
         }
         //endregion
 
-        return true;
+        return null;
     }
 
-    private void processCommand(CommandSender sender, CommandDefinition definition, String argumentsMessage, SenderType senderType) {
+    private void processCommand(CommandSender sender, DeprecatedCommandDefinition definition, String argumentsMessage, SenderType senderType) {
         checkAccess(definition, sender, senderType);
 
         List<Object> argumentsObjects = processArguments(definition, sender, argumentsMessage);
@@ -85,11 +87,11 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
     }
 
     /**
-     * Checking the {@link CommandDefinition} flags at the sender of the command
+     * Checking the {@link DeprecatedCommandDefinition} flags at the sender of the command
      *
      * @throws ACLFCommandException if check failed
      */
-    private void checkAccess(CommandDefinition definition, CommandSender sender, SenderType senderType) throws ACLFCommandException {
+    private void checkAccess(DeprecatedCommandDefinition definition, CommandSender sender, SenderType senderType) throws ACLFCommandException {
 
         //region Perms checking
         //                                                         (ops can use commands w/o perms) ↓↓↓
@@ -133,7 +135,7 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
     }
 
     @NotNull
-    private List<Object> processArguments(CommandDefinition definition, CommandSender sender, String argumentsMessage) throws ACLFCommandException {
+    private List<Object> processArguments(DeprecatedCommandDefinition definition, CommandSender sender, String argumentsMessage) throws ACLFCommandException {
         CommandResponse response = getCommandResponseFor(definition, sender, argumentsMessage);
 
         String[] split = argumentsMessage.split(" ");
@@ -143,10 +145,10 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
         final List<Object> parsedObjects = new ArrayList<>();
         final List<ArgumentMistakeType> mistakeTypes = new ArrayList<>();
 
-        final List<ArgumentDefinition> argumentDefinitionList = definition.getArgumentDefinitionList();
+        final List<DeprecatedArgumentDefinition> argumentDefinitionList = definition.getArgumentDefinitionList();
 
         int stringParsedIndex = 0;
-        for (ArgumentDefinition argumentDefinition : argumentDefinitionList) {
+        for (DeprecatedArgumentDefinition argumentDefinition : argumentDefinitionList) {
             String argumentString = argumentStringList.size() > stringParsedIndex ? argumentStringList.get(stringParsedIndex) : null;
 
             Object object = null;
@@ -186,6 +188,7 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
         if (mistakeTypes.contains(ArgumentMistakeType.EXCEPTION) || mistakeTypes.contains(ArgumentMistakeType.NOT_SPECIFIED)) throwUsage(definition, mistakeTypes);
         return parsedObjects;
     }
+
     private static Gson gson = new Gson();
 
     @Nullable
@@ -197,10 +200,10 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
         }
     }
 
-    private void invokeMethod(CommandDefinition definition, CommandSender sender, List<?> objectList) {
+    private void invokeMethod(DeprecatedCommandDefinition definition, CommandSender sender, List<?> objectList) {
 
         try {
-            definition.getMethod().invoke(definition.getControllerBean(), objectList.toArray());
+            definition.getMethod().invoke(definition, objectList.toArray());
         } catch (Exception e) {
             if (e.getCause() != null && ACLFCommandException.class.isAssignableFrom(e.getCause().getClass())) {
                 sender.sendMessage(ChatColor.RED + e.getCause().getMessage());
@@ -210,7 +213,7 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
         }
 
     }
-    private static CommandResponse getCommandResponseFor(CommandDefinition definition, CommandSender sender, String argumentsMessage) {
+    private static CommandResponse getCommandResponseFor(DeprecatedCommandDefinition definition, CommandSender sender, String argumentsMessage) {
         if (definition.hasConsoleSenderOnlyFlag())
             return new ConsoleCommandResponse((ConsoleCommandSender) sender, definition.getCommandName(), definition.getSubCommandName(), argumentsMessage);
         if (definition.hasPlayerOnlyFlag())
@@ -222,13 +225,13 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
     //endregion
 
     //region Usage
-    private void throwUsage(@NotNull CommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
+    private void throwUsage(@NotNull DeprecatedCommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
         StringBuilder argumentsStringBuilder = new StringBuilder();
 
-        List<ArgumentDefinition> stringParsedArgumentDefinitionList = definition.getStringParsedArgumentDefinitionList();
+        List<DeprecatedArgumentDefinition> stringParsedArgumentDefinitionList = definition.getStringParsedArgumentDefinitionList();
         for (int i = 0; i < stringParsedArgumentDefinitionList.size(); i++) {
             ArgumentMistakeType mistakeType = mistakesList.get(i) != null ? mistakesList.get(i) : ArgumentMistakeType.NOT_SPECIFIED;
-            ArgumentDefinition argumentDefinition = stringParsedArgumentDefinitionList.get(i);
+            DeprecatedArgumentDefinition argumentDefinition = stringParsedArgumentDefinitionList.get(i);
 
             argumentsStringBuilder
                     .append(mistakeType.getChatColor())
@@ -247,21 +250,14 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
 
     @EventHandler
     private void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
-        boolean isStarted = process(event.getMessage().substring(1), event.getPlayer(),  SenderType.PLAYER_CHAT);
-
-        if (isStarted) event.setCancelled(true);
     }
 
     @EventHandler
     private void serverCommandEvent(ServerCommandEvent event) {
-        boolean isStarted = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
-
-        if (isStarted) event.setCommand("aclf");
     }
 
     @EventHandler
     private void channelCommandReceiveEvent(ChannelCommandReceiveEvent event) {
-        process(event.getCommand(), event.getSender(), SenderType.PLAYER_CHANNEL);
     }
     //endregion
 

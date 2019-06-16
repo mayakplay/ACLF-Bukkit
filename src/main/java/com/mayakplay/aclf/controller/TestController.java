@@ -32,7 +32,7 @@ public class TestController {
     @ChatMapping("chat")
     public void test1() {
 
-
+        System.out.println("test");
 
     }
 

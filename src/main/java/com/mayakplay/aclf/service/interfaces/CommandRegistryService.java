@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.service.interfaces;
 
-import com.mayakplay.aclf.pojo.CommandDefinition;
+import com.mayakplay.aclf.pojo.DeprecatedCommandDefinition;
 
 /**
  * @author mayakplay
@@ -11,6 +11,8 @@ public interface CommandRegistryService {
 
     boolean containsCommand(String command, String subCommand);
 
-    CommandDefinition getCommandDefinition(String command, String subCommand);
+    DeprecatedCommandDefinition getCommandDefinition(String command, String subCommand);
+
+    DeprecatedCommandDefinition getCommandDefinitionByMessage(String message);
 
 }
