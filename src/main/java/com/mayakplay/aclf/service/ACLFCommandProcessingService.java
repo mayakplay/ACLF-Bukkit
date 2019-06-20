@@ -112,7 +112,6 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-
         }
 
     }
