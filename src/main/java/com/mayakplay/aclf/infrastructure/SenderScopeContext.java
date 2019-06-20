@@ -4,6 +4,7 @@ import com.mayakplay.aclf.ACLF;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * @author mayakplay
@@ -22,14 +23,16 @@ public final class SenderScopeContext {
         this.senderScopeThread = senderScopeThread;
 
         senderScopeThread.start();
-        System.out.println("Thread for [" + sender.getName() + "] stared");
+        System.out.println("!!!Thread for [" + sender.getName() + "] stared");
     }
 
     public void startContextRemoveTimer(long removeTimeTicks, Runnable callback) {
         if (timerId != null) return;
 
+        System.out.println("!!!Player [" + sender.getName() + "] has " + removeTimeTicks + " ticks to reconnect");
         Runnable runnable = () -> {
-            System.out.println("Thread killed for [" + sender.getName() + "]");
+            System.out.println("!!!Thread killed for [" + sender.getName() + "]");
+            timerId = null;
             callback.run();
         };
 
@@ -37,10 +40,14 @@ public final class SenderScopeContext {
     }
 
     public void stopRemoveTimer() {
-        System.out.println("Player [" + sender.getName() + "] join before timer execution. Timer closed");
+        BukkitScheduler bukkitScheduler = Bukkit.getScheduler();
 
-        Bukkit.getScheduler().cancelTask(timerId);
-        timerId = null;
+        if (timerId != null) {
+            System.out.println("!!!Player [" + sender.getName() + "] join before timer execution. Timer closed");
+            bukkitScheduler.cancelTask(timerId);
+            timerId = null;
+        }
+
     }
 
 }

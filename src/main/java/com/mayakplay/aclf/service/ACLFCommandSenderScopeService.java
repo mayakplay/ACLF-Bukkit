@@ -3,6 +3,7 @@ package com.mayakplay.aclf.service;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeThread;
 import com.mayakplay.aclf.service.interfaces.CommandRegistryService;
+import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -12,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -23,9 +25,9 @@ import java.util.Objects;
  * @since 21.06.2019.
  */
 @Service
-public class ACLFCommandSenderScopeService implements Listener {
+public class ACLFCommandSenderScopeService implements Listener, CommandSenderScopeService {
 
-    private static final long THREAD_REMOVE_TIME_TICKS = 10;
+    private static final long THREAD_REMOVE_TIME_TICKS = 20 * 5; //test
     private final HashMap<String, SenderScopeContext> sendersMap = new HashMap<>();
 
     private CommandRegistryService commandRegistryService;
@@ -34,11 +36,16 @@ public class ACLFCommandSenderScopeService implements Listener {
         this.commandRegistryService = commandRegistryService;
 
         final ConsoleCommandSender consoleCommandSender = Bukkit.getConsoleSender();
+        final String senderName = getSpecifySenderName(consoleCommandSender);
+        final SenderScopeContext senderContext = createSenderContext(consoleCommandSender);
 
-        final SenderScopeThread consoleSenderScopeThread = new SenderScopeThread(commandRegistryService);
-        final SenderScopeContext consoleSenderScopeContext = new SenderScopeContext(consoleCommandSender, consoleSenderScopeThread);
+        sendersMap.put(senderName, senderContext);
+    }
 
-        sendersMap.put(getSpecifySenderName(consoleCommandSender), consoleSenderScopeContext);
+    @Nullable
+    @Override
+    public SenderScopeContext getContextFor(CommandSender sender) {
+        return sendersMap.get(getSpecifySenderName(sender));
     }
 
     //region event
@@ -64,11 +71,13 @@ public class ACLFCommandSenderScopeService implements Listener {
     //region Util
     @NotNull
     private SenderScopeContext createSenderContext(CommandSender sender) {
-        SenderScopeThread senderScopeThread = new SenderScopeThread(commandRegistryService);
+        String senderName = getSpecifySenderName(sender);
+        SenderScopeThread senderScopeThread = new SenderScopeThread(senderName + "_thread", commandRegistryService);
         return new SenderScopeContext(sender, senderScopeThread);
     }
 
     @NotNull
+    @Override
     public String getSpecifySenderName(@NotNull CommandSender sender) {
         Objects.requireNonNull(sender);
         return sender.getClass().getSimpleName() + ":" + sender.getName();

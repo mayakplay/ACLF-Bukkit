@@ -22,15 +22,11 @@ public class CommandSenderScope implements Scope {
     @NotNull
     @Override
     public Object get(@NotNull String name, @NotNull ObjectFactory<?> objectFactory) {
-        if (threadScope.get() == null) {
+        System.out.println(Thread.currentThread().getName());
+        System.out.println(Thread.currentThread().getName());
+        System.out.println(Thread.currentThread().getName());
+        System.out.println(Thread.currentThread().getName());
 
-        }
-
-        if (objectFactory.getObject() instanceof CommandSender) {
-            return threadScope.get();
-        }
-
-        System.out.println(objectFactory.getObject());
         return objectFactory.getObject();
     }
 

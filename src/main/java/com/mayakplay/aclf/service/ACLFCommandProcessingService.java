@@ -6,9 +6,11 @@ import com.mayakplay.aclf.controller.TestController;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
+import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.pojo.*;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 import com.mayakplay.aclf.service.interfaces.CommandRegistryService;
+import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.SenderType;
@@ -49,6 +51,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     private final Gson gson;
     private final CommandRegistryService registryService;
     private final AnnotationConfigApplicationContext context;
+    private final CommandSenderScopeService senderScopeService;
     //endregion
 
     //region Command processing
@@ -294,9 +297,15 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
      */
     @EventHandler
     private void serverCommandEvent(ServerCommandEvent event) {
+        SenderScopeContext contextFor = senderScopeService.getContextFor(event.getSender());
 
-        TestController bean = context.getBean(TestController.class);
-        System.out.println(bean);
+        if (contextFor != null) {
+            contextFor.getSenderScopeThread().handleCallback(() -> {
+                TestController bean = context.getBean(TestController.class);
+            });
+        } else {
+            System.out.println("----------------- SENDER CONTEXT = NULL -----------------"); //test
+        }
 
 //        CommandProcessOutput process = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
 //

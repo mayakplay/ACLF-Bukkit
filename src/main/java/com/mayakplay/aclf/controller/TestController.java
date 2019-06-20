@@ -24,9 +24,9 @@ public class TestController {
         System.out.println(counter + " controller created");
 
         System.out.println("created +");
-        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-            System.out.println("            - " + element);
-        }
+//        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+//            System.out.println("            - " + element);
+//        }
 
     }
 
