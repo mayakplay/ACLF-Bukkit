@@ -2,6 +2,7 @@ package com.mayakplay.aclf.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.mayakplay.aclf.controller.TestController;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
@@ -23,8 +24,9 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     //region Construction
     private final Gson gson;
     private final CommandRegistryService registryService;
-    private final ApplicationContext context;
+    private final AnnotationConfigApplicationContext context;
     //endregion
 
     //region Command processing
@@ -293,9 +295,13 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
      */
     @EventHandler
     private void serverCommandEvent(ServerCommandEvent event) {
-        CommandProcessOutput process = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
 
-        if (process.equals(CommandProcessOutput.OK)) event.setCommand("aclf");
+        TestController bean = context.getBean(TestController.class);
+        System.out.println(bean);
+
+//        CommandProcessOutput process = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
+//
+//        if (process.equals(CommandProcessOutput.OK)) event.setCommand("aclf");
     }
 
     /**

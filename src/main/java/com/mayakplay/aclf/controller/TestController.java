@@ -4,7 +4,6 @@ import com.mayakplay.aclf.annotation.ChatMapping;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.TranslatedString;
-import lombok.AllArgsConstructor;
 
 /**
  * @author mayakplay
@@ -13,27 +12,32 @@ import lombok.AllArgsConstructor;
  */
 @CommandController
 @CommandMapping("test")
-@AllArgsConstructor
 public class TestController {
 
-    @TranslatedString
-    private final String SOME_TEXT = "";
+    private static int counter = 0;
 
-    @TranslatedString
-    private final String SOME_ANOTHER_TEXT = "";
+    @TranslatedString private final String SOME_TEXT = "";
+    @TranslatedString private final String SOME_ANOTHER_TEXT = "";
+
+    public TestController() {
+        counter ++;
+        System.out.println(counter + " controller created");
+
+        System.out.println("created +");
+        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+            System.out.println("            - " + element);
+        }
+
+    }
 
     @ChatMapping("channel")
     public void test() {
-
-
 
     }
 
     @ChatMapping("chat")
     public void test1() {
-
-        System.out.println("test");
-
+        System.out.println("chat");
     }
 
 }

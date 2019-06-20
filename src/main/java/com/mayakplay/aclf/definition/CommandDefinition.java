@@ -21,6 +21,8 @@ import java.util.Objects;
 @Getter
 public class CommandDefinition implements Definition, AnnotatedElement {
 
+    private boolean built = false;
+
     private String commandName;
 
     private final EnumSet<DefinitionFlag> flags;
@@ -33,6 +35,7 @@ public class CommandDefinition implements Definition, AnnotatedElement {
         this.commandMethod = commandMethod;
         this.definedAnnotations = new HashMap<>();
         this.flags = EnumSet.allOf(DefinitionFlag.class);
+        this.flags.addAll(Arrays.asList(flags));
 
         build();
         CommandDescriptionScanner scanner = new CommandDescriptionScanner(this);
@@ -40,11 +43,20 @@ public class CommandDefinition implements Definition, AnnotatedElement {
     }
 
     public void build() {
+        if (built) return;
+
         Annotation[] controllerAnnotations = commandControllerDefinition.getControllerClass().getDeclaredAnnotations();
         Annotation[] methodAnnotations = commandMethod.getDeclaredAnnotations();
 
         Arrays.stream(controllerAnnotations).forEach(annotation -> definedAnnotations.put(annotation.annotationType(), annotation));
         Arrays.stream(methodAnnotations).forEach(annotation -> definedAnnotations.put(annotation.annotationType(), annotation));
+
+        built = true;
+    }
+
+    @Override
+    public boolean isBuilt() {
+        return built;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationType) {

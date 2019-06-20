@@ -9,4 +9,6 @@ public interface Definition {
 
     void build();
 
+    boolean isBuilt();
+
 }

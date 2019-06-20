@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -20,7 +21,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 //        TranslatedAnnotationBeanPostProcessor.class
 //})
 @Retention(RUNTIME)
-@Target(TYPE)
+@Target({TYPE, PACKAGE})
 public @interface ACLFConfiguration {
 
 

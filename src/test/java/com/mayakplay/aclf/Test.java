@@ -1,5 +1,6 @@
 package com.mayakplay.aclf;
 
+import com.mayakplay.aclf.annotation.ACLFConfiguration;
 import com.mayakplay.aclf.annotation.ChannelMapping;
 
 /**
@@ -17,6 +18,8 @@ public class Test {
 //        if (commandMappingAnnotation != null) {
 //            System.out.println(commandMappingAnnotation);
 //        }
+
+        System.out.println(ACLFConfiguration.class.getPackage().getAnnotation(ACLFConfiguration.class));
 
     }
 
