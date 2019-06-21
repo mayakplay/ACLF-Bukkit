@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.pojo.*;
-import com.mayakplay.aclf.processor.CommandControllerRegistererBeanPostProcessor;
+import com.mayakplay.aclf.processor.DeprecatedCommandControllerRegistererBeanPostProcessor;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
@@ -36,7 +36,7 @@ public class DeprecatedACLFCommandProcessingService implements Listener, Command
     //region Processing
     @Override
     public CommandProcessOutput process(String message, CommandSender sender, SenderType senderType) {
-        Map<String, Map<String, DeprecatedCommandDefinition>> commandDefinitionsContainer = CommandControllerRegistererBeanPostProcessor.getCommandDefinitionsContainer();
+        Map<String, Map<String, DeprecatedCommandDefinition>> commandDefinitionsContainer = DeprecatedCommandControllerRegistererBeanPostProcessor.getCommandDefinitionsContainer();
 
         String[] s = message.split(" ");
 

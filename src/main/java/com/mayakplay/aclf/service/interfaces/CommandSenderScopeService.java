@@ -12,7 +12,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface CommandSenderScopeService {
 
-    @Nullable SenderScopeContext getContextFor(CommandSender sender);
+    @Nullable
+    SenderScopeContext getContextFor(CommandSender sender);
 
     @NotNull
     String getSpecifySenderName(@NotNull CommandSender sender);

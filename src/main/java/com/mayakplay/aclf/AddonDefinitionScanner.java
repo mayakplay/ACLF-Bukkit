@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.mayakplay.aclf.annotation.ACLFConfiguration;
+import com.mayakplay.aclf.event.AddonsContextsRefreshEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import com.mayakplay.aclf.util.ReflectionUtils;
@@ -85,6 +86,8 @@ public class AddonDefinitionScanner {
 
             refreshContext(addonDefinition);
         }
+
+        mainContext.publishEvent(new AddonsContextsRefreshEvent(null));
 
     }
 

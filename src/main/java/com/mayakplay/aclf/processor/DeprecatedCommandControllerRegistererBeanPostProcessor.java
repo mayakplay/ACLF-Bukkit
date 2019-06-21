@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CommandControllerRegistererBeanPostProcessor implements BeanPostProcessor, PriorityOrdered {
+public class DeprecatedCommandControllerRegistererBeanPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
     private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 

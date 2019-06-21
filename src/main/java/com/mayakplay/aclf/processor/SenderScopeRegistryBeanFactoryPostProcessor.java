@@ -19,6 +19,11 @@ public class SenderScopeRegistryBeanFactoryPostProcessor implements BeanFactoryP
     @Override
     public void postProcessBeanFactory(@NotNull ConfigurableListableBeanFactory beanFactory) throws BeansException {
         beanFactory.registerScope(CommandController.COMMAND_SENDER_SCOPE, new CommandSenderScope());
+
+        for (String name : beanFactory.getBeanDefinitionNames()) {
+
+        }
+
     }
 
 }

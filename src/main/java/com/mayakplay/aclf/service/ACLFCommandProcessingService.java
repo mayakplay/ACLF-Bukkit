@@ -2,7 +2,6 @@ package com.mayakplay.aclf.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.mayakplay.aclf.controller.TestController;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
@@ -15,7 +14,6 @@ import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.SenderType;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.val;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -30,7 +28,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,8 +55,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     @Override
     public CommandProcessOutput process(String message, CommandSender sender, SenderType senderType) {
         try {
-            return includedCommandProcessing(message, sender, senderType);
+            CommandProcessOutput commandProcessOutput = includedCommandProcessing(message, sender, senderType);
+            System.out.println(commandProcessOutput);
+            return commandProcessOutput;
         } catch (Exception ignored) {
+            System.out.println(CommandProcessOutput.EXCEPTION);
             return CommandProcessOutput.EXCEPTION;
         }
     }
@@ -87,36 +87,22 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     //endregion
 
     //region Invocation
-    private void invoke(DeprecatedCommandDefinition definition, CommandSender sender, List<Object> argumentObjects) throws InvocationTargetException, IllegalAccessException {
-        Thread thread = new Thread(
-                new ControllerRunnable(definition, sender, argumentObjects)
-        );
+    private void invoke(DeprecatedCommandDefinition definition, CommandSender sender, List<Object> argumentObjects) {
+        SenderScopeContext contextFor = senderScopeService.getContextFor(sender);
 
-        sender.sendMessage("TODO:///");
+        Runnable runnable = () -> {
+            Object bean = context.getBean(definition.getControllerClass());
 
-    }
-
-    @Data
-    @AllArgsConstructor
-    private class ControllerRunnable implements Runnable {
-
-        private DeprecatedCommandDefinition definition;
-        private CommandSender sender;
-        private List<Object> argumentObjects;
-
-        @Override
-        public void run() {
-            Class<?> controllerClass = definition.getControllerClass();
-            Method method = definition.getMethod();
-
-            Object bean = context.getBean(controllerClass);
             try {
-                method.invoke(bean, argumentObjects);
+                definition.getMethod().invoke(bean, argumentObjects);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-        }
+        };
 
+
+        assert contextFor != null;
+        contextFor.getSenderScopeThread().handleCallback(runnable);
     }
     //endregion
 
@@ -286,6 +272,14 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         CommandProcessOutput process = process(event.getMessage().substring(1), event.getPlayer(), SenderType.PLAYER_CHAT);
 
         if (process.equals(CommandProcessOutput.OK)) event.setCancelled(true);
+//        SenderScopeContext contextFor = senderScopeService.getContextFor(event.getPlayer());
+//        if (contextFor != null) {
+//            contextFor.getSenderScopeThread().handleCallback(() -> {
+//                TestController bean = context.getBean(TestController.class);
+//            });
+//        } else {
+//            System.out.println("----------------- SENDER CONTEXT = NULL -----------------"); //test
+//        }
     }
 
     /**
@@ -297,19 +291,18 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
      */
     @EventHandler
     private void serverCommandEvent(ServerCommandEvent event) {
-        SenderScopeContext contextFor = senderScopeService.getContextFor(event.getSender());
-
-        if (contextFor != null) {
-            contextFor.getSenderScopeThread().handleCallback(() -> {
-                TestController bean = context.getBean(TestController.class);
-            });
-        } else {
-            System.out.println("----------------- SENDER CONTEXT = NULL -----------------"); //test
-        }
-
-//        CommandProcessOutput process = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
+//        SenderScopeContext contextFor = senderScopeService.getContextFor(event.getSender());
 //
-//        if (process.equals(CommandProcessOutput.OK)) event.setCommand("aclf");
+//        if (contextFor != null) {
+//            contextFor.getSenderScopeThread().handleCallback(() -> {
+//                TestController bean = context.getBean(TestController.class);
+//            });
+//        } else {
+//            System.out.println("----------------- SENDER CONTEXT = NULL -----------------"); //test
+//        }
+        CommandProcessOutput process = process(event.getCommand(), event.getSender(), SenderType.CONSOLE);
+
+        if (process.equals(CommandProcessOutput.OK)) event.setCommand("aclf");
     }
 
     /**

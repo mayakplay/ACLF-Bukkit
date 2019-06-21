@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.infrastructure;
 
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,7 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Applies annotated {@link BeanPostProcessor} from main <i>spring</i> context to child contexts.
+ * Applies annotated {@link BeanPostProcessor} or {@link BeanFactoryPostProcessor} from main <i>spring</i> context to child contexts.
  *
  * <i>ACLF inside usage</i>
  *

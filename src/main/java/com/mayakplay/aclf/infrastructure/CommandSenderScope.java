@@ -1,10 +1,11 @@
 package com.mayakplay.aclf.infrastructure;
 
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.core.NamedThreadLocal;
+
+import java.util.HashMap;
 
 /**
  * @author mayakplay
@@ -13,7 +14,7 @@ import org.springframework.core.NamedThreadLocal;
  */
 public class CommandSenderScope implements Scope {
 
-    private final ThreadLocal<CommandSender> threadScope;
+    private final ThreadLocal<HashMap<String, Object>> threadScope;
 
     public CommandSenderScope() {
         this.threadScope = new NamedThreadLocal<>("CommandSenderThreadLocal");
@@ -22,17 +23,17 @@ public class CommandSenderScope implements Scope {
     @NotNull
     @Override
     public Object get(@NotNull String name, @NotNull ObjectFactory<?> objectFactory) {
-        System.out.println(Thread.currentThread().getName());
-        System.out.println(Thread.currentThread().getName());
-        System.out.println(Thread.currentThread().getName());
-        System.out.println(Thread.currentThread().getName());
+        if (threadScope.get() == null)
+            threadScope.set(new HashMap<>());
 
-        return objectFactory.getObject();
+        final HashMap<String, Object> stringObjectHashMap = threadScope.get();
+
+        return stringObjectHashMap.computeIfAbsent(name, s -> objectFactory.getObject());
     }
 
     @Override
     public Object remove(@NotNull String name) {
-        CommandSender commandSender = threadScope.get();
+        HashMap<String, Object> commandSender = threadScope.get();
         threadScope.remove();
         return commandSender;
     }

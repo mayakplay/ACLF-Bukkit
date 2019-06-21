@@ -22,6 +22,7 @@ public final class SenderScopeThread extends Thread {
     }
 
     @SneakyThrows
+    @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
         while (true) {
             if (tasksQueue.peek() != null) {
