@@ -158,7 +158,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
     @Nullable
     private CommandDefinition getCommandDefinitionByMessage(String message) {
-        return
+        return null;
     }
 
     //endregion

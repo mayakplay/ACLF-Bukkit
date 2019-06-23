@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.definition;
 
+import com.google.common.collect.ImmutableSet;
 import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.Permitted;
 import com.mayakplay.aclf.type.DefinitionFlag;
@@ -18,10 +19,10 @@ import java.util.*;
  * @version 0.0.1
  * @since 15.06.2019.
  */
-@Getter
 public class CommandDefinition implements AnnotatedElement {
 
     @NotNull
+    @Getter
     private final String commandName;
 
     @NotNull
@@ -36,6 +37,9 @@ public class CommandDefinition implements AnnotatedElement {
     @NotNull
     private final Set<String> permissionSet;
 
+    @NotNull
+    private final CommandDescriptionScanner commandDescriptionScanner;
+
     private CommandDefinition(@NotNull String commandName, @NotNull Method commandMethod,
                               @NotNull CommandControllerDefinition commandControllerDefinition, DefinitionFlag... flags) {
         this.commandName = commandName;
@@ -47,8 +51,7 @@ public class CommandDefinition implements AnnotatedElement {
 
         fillPermissions();
 
-        CommandDescriptionScanner scanner = new CommandDescriptionScanner(this);
-        scanner.scan();
+        this.commandDescriptionScanner = new CommandDescriptionScanner(commandControllerDefinition, this);
     }
 
     private void fillPermissions() {
@@ -91,7 +94,7 @@ public class CommandDefinition implements AnnotatedElement {
 
     @NotNull
     public Set<String> getPermissionSet() {
-        return permissionSet;
+        return ImmutableSet.copyOf(permissionSet);
     }
 
     public boolean hasOpsOnlyFlag() {

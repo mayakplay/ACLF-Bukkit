@@ -1,9 +1,6 @@
 package com.mayakplay.aclf.controller;
 
-import com.mayakplay.aclf.annotation.ChatMapping;
-import com.mayakplay.aclf.annotation.CommandController;
-import com.mayakplay.aclf.annotation.CommandMapping;
-import com.mayakplay.aclf.annotation.TranslatedString;
+import com.mayakplay.aclf.annotation.*;
 
 /**
  * @author mayakplay
@@ -30,7 +27,7 @@ public class TestController {
 
     }
 
-    @ChatMapping("channel")
+    @ChannelMapping("channel")
     public void test() {
 
     }

@@ -37,6 +37,10 @@ public @interface Documented {
     String DEFAULT_NO_PERMISSIONS_MESSAGE = "command.default.no.permissions";
     String DEFAULT_OPS_ONLY_MESSAGE =       "command.default.ops.only";
     String DEFAULT_USAGE_MESSAGE =          "command.default.usage";
+    String DEFAULT_CHAT_ONLY_MESSAGE =      "command.default.chat.only";
+    String DEFAULT_CHANNEL_ONLY_MESSAGE =   "command.default.channel.only";
+
+    boolean displayInHelp() default false;
 
     /**
      * A message will be displayed when a player uses the console command.
@@ -78,5 +82,11 @@ public @interface Documented {
      */
     @TranslatedString
     String usage() default DEFAULT_USAGE_MESSAGE;
+
+    @TranslatedString
+    String chatOnlyMessage() default DEFAULT_CHAT_ONLY_MESSAGE;
+
+    @TranslatedString
+    String channelOnlyMessage() default DEFAULT_CHANNEL_ONLY_MESSAGE;
 
 }

@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.type.MappingPrivacy;
+import com.mayakplay.aclf.type.MappingAccess;
 import org.springframework.core.annotation.AliasFor;
 
 import java.lang.annotation.Retention;
@@ -22,7 +22,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Retention(RUNTIME)
 @Target({METHOD, TYPE})
-@CommandMapping(privacy = MappingPrivacy.CHANNEL)
+@CommandMapping(privacy = MappingAccess.CHANNEL)
 public @interface ChannelMapping {
 
     @AliasFor(annotation = CommandMapping.class, value = "value")

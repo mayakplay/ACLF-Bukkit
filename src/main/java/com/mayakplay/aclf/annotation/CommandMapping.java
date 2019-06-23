@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.type.MappingPrivacy;
+import com.mayakplay.aclf.type.MappingAccess;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -20,6 +20,6 @@ public @interface CommandMapping {
 
     String value() default "";
 
-    MappingPrivacy privacy() default MappingPrivacy.BOTH;
+    MappingAccess privacy() default MappingAccess.BOTH;
 
 }

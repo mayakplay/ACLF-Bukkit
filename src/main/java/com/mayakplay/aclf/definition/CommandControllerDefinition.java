@@ -2,16 +2,15 @@ package com.mayakplay.aclf.definition;
 
 import com.google.common.collect.ImmutableList;
 import com.mayakplay.aclf.annotation.CommandMapping;
+import com.mayakplay.aclf.annotation.OpsOnly;
+import com.mayakplay.aclf.type.DefinitionFlag;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,11 +33,15 @@ public class CommandControllerDefinition implements AnnotatedElement {
     @NotNull
     private final List<CommandDefinition> commandDefinitionsList;
 
+    @NotNull
+    private final EnumSet<DefinitionFlag> flags;
+
     private CommandControllerDefinition(@NotNull Class<?> controllerClass, @NotNull String controllerBeanName) {
         this.controllerClass = controllerClass;
         this.controllerBeanName = controllerBeanName;
         this.commandDefinitionsList = new ArrayList<>();
         this.commandName = getAnnotation(CommandMapping.class).value();
+        this.flags = EnumSet.allOf(DefinitionFlag.class);
 
         List<CommandDefinition> availableDefinitions = Arrays.stream(controllerClass.getDeclaredMethods())
                 .map(method -> CommandDefinition.of(method, this))
@@ -46,6 +49,9 @@ public class CommandControllerDefinition implements AnnotatedElement {
                 .collect(Collectors.toList());
 
         this.commandDefinitionsList.addAll(availableDefinitions);
+
+        if (getAnnotation(OpsOnly.class) != null) flags.add(DefinitionFlag.OPS_ONLY);
+
     }
 
     public static CommandControllerDefinition of(@NotNull Class<?> controllerClass, @NotNull String controllerBeanName) {
