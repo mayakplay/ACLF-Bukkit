@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.util;
 
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -9,6 +10,8 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 /**
@@ -31,6 +34,18 @@ public class ReflectionUtils {
 
     public static void main(String[] args) {
         System.out.println(Objects.requireNonNull(getMethodCallerClass()).getSimpleName());
+    }
+
+    /**
+     * ВЗЛОМ ЖОПЫ
+     */
+    @SneakyThrows
+    public static void setFullyAccessible(Field field) {
+        field.setAccessible(true);
+
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
     public static Reflections getReflectionsFor(ClassLoader classLoader, String mainClassPackage) {

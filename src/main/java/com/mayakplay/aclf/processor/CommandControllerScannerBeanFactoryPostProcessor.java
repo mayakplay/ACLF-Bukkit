@@ -3,6 +3,7 @@ package com.mayakplay.aclf.processor;
 import com.google.common.collect.ImmutableMap;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.event.AddonsContextsRefreshEvent;
+import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -10,8 +11,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,7 @@ import java.util.Map;
  * @since 09.06.2019.
  */
 @InfrastructurePostProcessor
-public class CommandControllerScannerBeanFactoryPostProcessor implements BeanFactoryPostProcessor, ApplicationListener {
+public class CommandControllerScannerBeanFactoryPostProcessor implements BeanFactoryPostProcessor, ApplicationListener<AddonsContextsRefreshEvent> {
 
     private final HashMap<String, Class<?>> controllersMap = new HashMap<>();
 
@@ -30,33 +32,28 @@ public class CommandControllerScannerBeanFactoryPostProcessor implements BeanFac
     @SneakyThrows
     public void postProcessBeanFactory(@NotNull ConfigurableListableBeanFactory beanFactory) throws BeansException {
         for (String name : beanFactory.getBeanDefinitionNames()) {
-            BeanDefinition beanDefinition = beanFactory.getBeanDefinition(name);
+            BeanDefinition factoryBeanDefinition = beanFactory.getBeanDefinition(name);
 
-            System.out.println("=======================================" + beanDefinition.getBeanClassName());
+            if (factoryBeanDefinition instanceof ScannedGenericBeanDefinition) {
+                final ScannedGenericBeanDefinition beanDefinition = (ScannedGenericBeanDefinition) factoryBeanDefinition;
+                final String beanClassName = beanDefinition.getMetadata().getClassName();
+                final Class<?> beanClass = Class.forName(beanClassName);
 
-            Class<?> beanClass = Class.forName(
-                    beanDefinition
-                            .getBeanClassName()
-            );
-            if (beanClass.getAnnotation(CommandController.class) != null) {
-                controllersMap.put(name, beanClass);
+                if (beanClass.isAnnotationPresent(CommandController.class)) {
+                    controllersMap.put(name, beanClass);
+                }
             }
         }
     }
 
     @NotNull
-    public Map<String, Class<?>> getControllersMap() {
+    private Map<String, Class<?>> getControllersMap() {
         return ImmutableMap.copyOf(controllersMap);
     }
 
     @Override
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof AddonsContextsRefreshEvent) {
-            System.out.println("CONTEXTS REFRESHED");
-            System.out.println("CONTEXTS REFRESHED");
-            System.out.println("CONTEXTS REFRESHED");
-            System.out.println("CONTEXTS REFRESHED");
-            System.out.println("CONTEXTS REFRESHED");
-        }
+    public void onApplicationEvent(@NotNull AddonsContextsRefreshEvent event) {
+        AnnotationConfigApplicationContext source = event.getSource();
+        source.publishEvent(new ControllersClassesScanFinishedEvent(getControllersMap()));
     }
 }

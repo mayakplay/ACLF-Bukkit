@@ -1,10 +1,17 @@
 package com.mayakplay.aclf.service;
 
+import com.mayakplay.aclf.definition.CommandControllerDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
+import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
+import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author mayakplay
@@ -12,20 +19,50 @@ import org.springframework.stereotype.Component;
  * @since 21.06.2019.
  */
 @Component
-public class ACLFCommandContainerService implements CommandContainerService {
+public class ACLFCommandContainerService implements CommandContainerService, ApplicationListener<ControllersClassesScanFinishedEvent> {
 
+    private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
-    public ACLFCommandContainerService() {
-
-    }
+    @NotNull
+    private final Map<String, CommandDefinition> commandDefinitionAssociationsMap = new HashMap<>();
 
     @Override
     public boolean containsCommand(@NotNull String commandName, @Nullable String subCommandName) {
-        return false;
+        return commandDefinitionAssociationsMap.containsKey(commandName + ":" + subCommandName);
     }
 
     @Override
+    @Nullable
     public CommandDefinition getDefinition(@NotNull String commandName, @Nullable String subCommandName) {
-        return null;
+        return commandDefinitionAssociationsMap.get(commandName + ":" + subCommandName);
+    }
+
+    @Override
+    public void onApplicationEvent(@NotNull ControllersClassesScanFinishedEvent event) {
+        Map<String, Class<?>> controllersClassesMap = event.getSource();
+
+        for (Map.Entry<String, Class<?>> entry : controllersClassesMap.entrySet()) {
+            Class<?> controllerClass = entry.getValue();
+            String controllerBeanName = entry.getKey();
+
+            CommandControllerDefinition controllerDefinition = CommandControllerDefinition.of(controllerClass, controllerBeanName);
+
+            for (CommandDefinition definition : controllerDefinition.getCommandDefinitionsList()) {
+                checkRegex(controllerDefinition.getCommandName(), definition.getCommandName());
+                String fullCommandName = controllerDefinition.getCommandName() + ":" + definition.getCommandName();
+                commandDefinitionAssociationsMap.put(fullCommandName, definition);
+            }
+        }
+
+        for (Map.Entry<String, CommandDefinition> entry : commandDefinitionAssociationsMap.entrySet()) {
+            System.out.println(entry.getKey() + entry.getValue());
+        }
+    }
+
+    private void checkRegex(String commandName, String subCommandName) {
+        if (subCommandName.isEmpty()) subCommandName = "{BLANK}";
+        if (!commandName.matches(COMMAND_NAME_REGEX) || !subCommandName.matches(COMMAND_NAME_REGEX)) {
+            throw new ACLFCriticalException("Check [" + commandName + " " + subCommandName + "] regex! It must be ([a-z] or empty)");
+        }
     }
 }

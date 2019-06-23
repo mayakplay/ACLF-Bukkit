@@ -1,8 +1,8 @@
 package com.mayakplay.aclf.service;
 
+import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeThread;
-import com.mayakplay.aclf.service.interfaces.CommandRegistryService;
 import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Objects;
  * @since 21.06.2019.
  */
 @Service
-public class ACLFCommandSenderScopeService implements Listener, CommandSenderScopeService {
+public class ACLFCommandSenderScopeService implements Listener, CommandSenderScopeService, ApplicationListener<ControllersClassesScanFinishedEvent> {
 
     private static final long THREAD_REMOVE_TIME_TICKS = 20 * 5; //test
     private final HashMap<String, SenderScopeContext> sendersMap = new HashMap<>();
@@ -34,7 +35,10 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
 
     public ACLFCommandSenderScopeService(CommandRegistryService commandRegistryService) {
         this.commandRegistryService = commandRegistryService;
+    }
 
+    @Override
+    public void onApplicationEvent(@NotNull ControllersClassesScanFinishedEvent event) {
         final ConsoleCommandSender consoleCommandSender = Bukkit.getConsoleSender();
         final String senderName = getSpecifySenderName(consoleCommandSender);
         final SenderScopeContext senderContext = createSenderContext(consoleCommandSender);
@@ -47,8 +51,8 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     public SenderScopeContext getContextFor(CommandSender sender) {
         return sendersMap.get(getSpecifySenderName(sender));
     }
-
     //region event
+
     @EventHandler
     private void handleJoinEvent(PlayerJoinEvent event) {
         final Player playerSender = event.getPlayer();
@@ -57,7 +61,6 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
         SenderScopeContext senderScopeContext = sendersMap.computeIfAbsent(senderName, s -> createSenderContext(playerSender));
         senderScopeContext.stopRemoveTimer();
     }
-
     @EventHandler
     private void handleLeaveEvent(PlayerQuitEvent event) {
         final Player playerSender = event.getPlayer();
@@ -66,9 +69,10 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
         SenderScopeContext playerSenderScopeContext = sendersMap.get(getSpecifySenderName(playerSender));
         playerSenderScopeContext.startContextRemoveTimer(THREAD_REMOVE_TIME_TICKS, () -> sendersMap.remove(senderName));
     }
-    //endregion
 
+    //endregion
     //region Util
+
     @NotNull
     private SenderScopeContext createSenderContext(CommandSender sender) {
         String senderName = getSpecifySenderName(sender);

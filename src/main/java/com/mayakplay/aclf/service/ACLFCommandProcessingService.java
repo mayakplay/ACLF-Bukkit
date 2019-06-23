@@ -2,13 +2,14 @@ package com.mayakplay.aclf.service;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.pojo.*;
+import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
-import com.mayakplay.aclf.service.interfaces.CommandRegistryService;
 import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
@@ -46,9 +47,9 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
     //region Construction
     private final Gson gson;
-    private final CommandRegistryService registryService;
     private final AnnotationConfigApplicationContext context;
     private final CommandSenderScopeService senderScopeService;
+    private final CommandContainerService containerService;
     //endregion
 
     //region Command processing
@@ -87,14 +88,14 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     //endregion
 
     //region Invocation
-    private void invoke(DeprecatedCommandDefinition definition, CommandSender sender, List<Object> argumentObjects) {
+    private void invoke(CommandDefinition definition, CommandSender sender, List<Object> argumentObjects) {
         SenderScopeContext contextFor = senderScopeService.getContextFor(sender);
 
         Runnable runnable = () -> {
             Object bean = context.getBean(definition.getControllerClass());
 
             try {
-                definition.getMethod().invoke(bean, argumentObjects);
+                definition.getCommandMethod().invoke(bean, argumentObjects);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
@@ -108,11 +109,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
     //region Checking
     /**
-     * Checking the {@link DeprecatedCommandDefinition} flags at the sender of the command
+     * Checking the {@link CommandDefinition} flags at the sender of the command
      *
      * @throws ACLFCommandException with translated message if check failed
      */
-    private CommandProcessOutput checkAccess(DeprecatedCommandDefinition definition, CommandSender sender, SenderType senderType) throws ACLFCommandException {
+    private CommandProcessOutput checkAccess(CommandDefinition definition, CommandSender sender, SenderType senderType) throws ACLFCommandException {
 
         //region Perms checking
         if (!sender.getEffectivePermissions().containsAll(definition.getPermissionSet()) && !sender.isOp()) {
@@ -156,15 +157,15 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     }
 
     @Nullable
-    private DeprecatedCommandDefinition getCommandDefinitionByMessage(String message) {
-        return registryService.getCommandDefinitionByMessage(message);
+    private CommandDefinition getCommandDefinitionByMessage(String message) {
+        return
     }
 
     //endregion
 
     //region Arguments processing
     @NotNull
-    private List<Object> processArguments(DeprecatedCommandDefinition definition, CommandSender sender, String argumentsMessage) throws ACLFCommandException {
+    private List<Object> processArguments(CommandDefinition definition, CommandSender sender, String argumentsMessage) throws ACLFCommandException {
         CommandResponse response = getCommandResponseFor(definition, sender, argumentsMessage);
 
         String[] split = argumentsMessage.split(" ");
@@ -227,18 +228,18 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         }
     }
 
-    private static CommandResponse getCommandResponseFor(DeprecatedCommandDefinition definition, CommandSender sender, String argumentsMessage) {
-        if (definition.hasConsoleSenderOnlyFlag())
-            return new ConsoleCommandResponse((ConsoleCommandSender) sender, definition.getCommandName(), definition.getSubCommandName(), argumentsMessage);
-        if (definition.hasPlayerSenderOnlyFlag())
-            return new PlayerCommandResponse((Player) sender, definition.getCommandName(), definition.getSubCommandName(), argumentsMessage);
+    private static CommandResponse getCommandResponseFor(CommandDefinition definition, CommandSender sender, String argumentsMessage) {
+        if (definition.hasConsoleOnlyFlag())
+            return new ConsoleCommandResponse((ConsoleCommandSender) sender, definition.getControllerCommandName(), definition.getCommandName(), argumentsMessage);
+        if (definition.hasPlayerOnlyFlag())
+            return new PlayerCommandResponse((Player) sender, definition.getControllerCommandName(), definition.getCommandName(), argumentsMessage);
         //else
-        return new CommandResponse(sender, definition.getCommandName(), definition.getSubCommandName(), argumentsMessage);
+        return new CommandResponse(sender, definition.getControllerCommandName(), definition.getCommandName(), argumentsMessage);
     }
     //endregion
 
     //region Usage
-    private void throwUsage(@NotNull DeprecatedCommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
+    private void throwUsage(@NotNull CommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
         StringBuilder argumentsStringBuilder = new StringBuilder();
 
         List<DeprecatedArgumentDefinition> stringParsedArgumentDefinitionList = definition.getStringParsedArgumentDefinitionList();

@@ -4,6 +4,7 @@ import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.TranslatedString;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import com.mayakplay.aclf.service.interfaces.TranslationService;
+import com.mayakplay.aclf.util.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.bukkit.plugin.Plugin;
@@ -50,15 +51,8 @@ public class TranslatedAnnotationBeanPostProcessor implements BeanPostProcessor 
                     translated = translatedKey;
                 }
 
-                //region Взлом жопы
-                field.setAccessible(true);
-
-                Field modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
+                ReflectionUtils.setFullyAccessible(field);
                 field.set(bean, translated);
-                //endregion
 
                 System.out.println(bean.getClass().getSimpleName() + "." + field.getName() + " = " + translated);
             }

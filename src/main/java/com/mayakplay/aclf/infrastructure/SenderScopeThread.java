@@ -1,6 +1,5 @@
 package com.mayakplay.aclf.infrastructure;
 
-import com.mayakplay.aclf.service.interfaces.CommandRegistryService;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 

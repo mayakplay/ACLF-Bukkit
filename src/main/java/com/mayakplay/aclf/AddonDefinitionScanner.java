@@ -64,10 +64,28 @@ public class AddonDefinitionScanner {
         registerContexts();
     }
 
+    private List<Object> getInfrastructureProcessorsList(AnnotationConfigApplicationContext mainContext) {
+        ArrayList<Object> infrastructureComponentsList = new ArrayList<>();
+
+        Map<String, Object> beansWithAnnotation = mainContext.getBeansWithAnnotation(InfrastructurePostProcessor.class);
+
+        for (Map.Entry<String, Object> entry : beansWithAnnotation.entrySet()) {
+            Object infrastructureComponent = entry.getValue();
+            Class<?> infrastructureProcessorClass = infrastructureComponent.getClass();
+
+            if (infrastructureProcessorClass.isAnnotationPresent(InfrastructurePostProcessor.class)) {
+                infrastructureComponentsList.add(infrastructureComponent);
+            }
+        }
+
+        return infrastructureComponentsList;
+    }
+
     private void registerContexts() {
 
         mainContext.setClassLoader(ACLFSpringConfig.class.getClassLoader());
         mainContext.register(ACLFSpringConfig.class);
+
         mainContext.refresh();
 
         for (Map.Entry<ClassLoader, AddonDefinition> entry : addonDefinitionHashMap.entrySet()) {
@@ -75,6 +93,19 @@ public class AddonDefinitionScanner {
             ClassLoader addonClassLoader = entry.getKey();
 
             AnnotationConfigApplicationContext addonContext = new AnnotationConfigApplicationContext();
+
+            //region Description
+            for (Object processor : getInfrastructureProcessorsList(mainContext)) {
+                if (processor instanceof BeanFactoryPostProcessor) {
+                    addonContext.addBeanFactoryPostProcessor((BeanFactoryPostProcessor) processor);
+                }
+
+                if (processor instanceof BeanPostProcessor) {
+                    addonContext.getBeanFactory().addBeanPostProcessor((BeanPostProcessor) processor);
+                }
+
+            }
+            //endregion
 
             addonContext.setClassLoader(addonClassLoader);
             addonContext.register(addonDefinition.getConfigurationClass());
@@ -87,8 +118,7 @@ public class AddonDefinitionScanner {
             refreshContext(addonDefinition);
         }
 
-        mainContext.publishEvent(new AddonsContextsRefreshEvent(null));
-
+        mainContext.publishEvent(new AddonsContextsRefreshEvent(mainContext));
     }
 
     private void refreshContext(AddonDefinition addonDefinition) {
