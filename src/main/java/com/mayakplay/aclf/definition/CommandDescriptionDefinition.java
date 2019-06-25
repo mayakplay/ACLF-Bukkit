@@ -2,6 +2,7 @@ package com.mayakplay.aclf.definition;
 
 import com.mayakplay.aclf.annotation.Documented;
 import lombok.Getter;
+import org.bukkit.ChatColor;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -63,5 +64,9 @@ public class CommandDescriptionDefinition {
             chatOnlyMessage = Documented.DEFAULT_CHAT_ONLY_MESSAGE;
             channelOnlyMessage = Documented.DEFAULT_CHANNEL_ONLY_MESSAGE;
         }
+    }
+
+    public String getUsageMessage(CommandDefinition definition, String argumentsString) {
+        return ChatColor.WHITE + "Usage: " + definition.getCommandName().replace(":", " ") + " " + argumentsString;
     }
 }

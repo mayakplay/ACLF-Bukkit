@@ -1,6 +1,5 @@
 package com.mayakplay.aclf.stereotype;
 
-import com.mayakplay.aclf.exception.ACLFException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,6 +13,6 @@ import java.lang.reflect.Type;
 public interface ArgumentProcessor<T> {
 
     @Nullable
-    T parse(@NotNull String argumentMessage, Type returnType) throws ACLFException;
+    T parse(@NotNull String argumentMessage, Type returnType) throws Throwable;
 
 }

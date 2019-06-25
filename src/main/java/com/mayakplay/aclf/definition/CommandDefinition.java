@@ -26,7 +26,6 @@ import java.util.*;
  * @version 0.0.1
  * @since 15.06.2019.
  */
-@ToString
 @EqualsAndHashCode(of = {"commandDefinitionName", "commandControllerDefinition"})
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommandDefinition {
@@ -53,6 +52,7 @@ public class CommandDefinition {
     private final MappingAccess mappingAccess;
 
     @NotNull
+    @Getter
     private final CommandDescriptionDefinition commandDescriptionScanner;
 
     @NotNull
@@ -83,8 +83,9 @@ public class CommandDefinition {
         CommandDescriptionDefinition commandDescriptionScanner = new CommandDescriptionDefinition(commandControllerDefinition.getControllerClass(), commandMethod);
         CommandDefinition commandDefinition = new CommandDefinition(commandName, flags, commandMethod, commandControllerDefinition, permissionsSet, mappingAccess, commandDescriptionScanner);
 
-        ArgumentDefinition.of(commandDefinition, commandContainerService);
+        List<ArgumentDefinition> list = ArgumentDefinition.of(commandDefinition, commandContainerService);
 
+        commandDefinition.argumentDefinitions.addAll(list);
         return commandDefinition;
     }
 

@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.infrastructure;
 
+import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.exception.ACLFException;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -40,21 +41,21 @@ public final class SenderScopeThread extends Thread {
         }
     }
 
-    private String getDeepACLFException(Throwable throwable) {
+    public static String getDeepACLFException(Throwable throwable) {
         Throwable t = recursive(throwable, 0);
         if (t != null)
             return t.getMessage();
 
         Bukkit.getConsoleSender().sendMessage(
-                ChatColor.YELLOW + "@ Please, use " + ChatColor.AQUA + "ACLFException" + ChatColor.YELLOW + " to mark mistakes in command!!!");
+                ChatColor.YELLOW + "@ Please, use " + ChatColor.AQUA + "ACLFCommandException" + ChatColor.YELLOW + " to mark mistakes in command!!!");
 
         throwable.printStackTrace();
         return "Something goes wrong.";
     }
 
-    private Throwable recursive(Throwable exception, int counter) {
+    private static Throwable recursive(Throwable exception, int counter) {
         if (counter > 10) return null;
-        if (exception instanceof ACLFException) {
+        if (exception instanceof ACLFException || exception instanceof ACLFCommandException) {
             return exception;
         } else {
             return exception.getCause() != null ? recursive(exception.getCause(), ++counter) : null;

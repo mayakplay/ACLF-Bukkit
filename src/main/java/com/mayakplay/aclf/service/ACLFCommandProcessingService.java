@@ -12,6 +12,7 @@ import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeRunnable;
+import com.mayakplay.aclf.infrastructure.SenderScopeThread;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
@@ -21,6 +22,7 @@ import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.SenderType;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -35,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Command existence checking -> Access checking -> arguments processing -> controller calling
@@ -58,11 +61,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     @Override
     public CommandProcessOutput handle(String message, CommandSender sender, SenderType senderType) {
         try {
-            CommandProcessOutput commandProcessOutput = includedCommandProcessing(message, sender, senderType);
-            System.out.println(commandProcessOutput);
-            return commandProcessOutput;
-        } catch (Exception ignored) {
-            System.out.println(CommandProcessOutput.EXCEPTION);
+            return includedCommandProcessing(message, sender, senderType);
+        } catch (Throwable throwable) {
+            String deepACLFException = SenderScopeThread.getDeepACLFException(throwable);
+            sender.sendMessage(ChatColor.RED + deepACLFException);
+
             return CommandProcessOutput.EXCEPTION;
         }
     }
@@ -75,39 +78,33 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         val definition = containerService.getDefinitionByMessage(message);
 
         if (definition == null)
-            /*--------*/ return CommandProcessOutput.COMMAND_DOES_NOT_FOUND;
+/*--------*/ return CommandProcessOutput.COMMAND_DOES_NOT_FOUND;
         //endregion
 
         //region access checking
         val afterAccessCheckingOutputType = checkAccess(definition, sender, senderType);
 
         if (!afterAccessCheckingOutputType.equals(CommandProcessOutput.OK))
-            /*--------*/ return afterAccessCheckingOutputType;
+/*--------*/ return afterAccessCheckingOutputType;
         //endregion
 
         //region arguments checking
 
-        val argumentsObjectsList = processArguments(definition, sender, message.substring(definition.getCommandName().length()));
+        int commandNameLength = definition.getCommandName().length() + 1;
+
+        String onlyArgumentsMessage = message.length() >= commandNameLength ? message.substring(commandNameLength) : "";
+
+        val argumentsObjectsList = processArguments(definition, sender, onlyArgumentsMessage.trim());
 
         if (argumentsObjectsList.size() != definition.getArgumentDefinitions().size())
-            /*--------*/ return CommandProcessOutput.INVALID_ARGUMENTS;
+/*--------*/ return CommandProcessOutput.INVALID_ARGUMENTS;
 
         //endregion
 
 
-        System.out.println("---------------------------------------------------");
-        System.out.println(definition);
-
-        for (Object o : argumentsObjectsList) {
-            System.out.println(o);
-        }
-        System.out.println("---------------------------------------------------");
-
-//
         invoke(definition, sender, argumentsObjectsList);
 
-        /*----*/
-        return CommandProcessOutput.OK;
+/*----*/ return CommandProcessOutput.OK;
 
     }
 
@@ -163,7 +160,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
                     //endregion
 
 //                    object = parseFromGSON(argumentString.trim(), argumentDefinition.getType());
-                    object = argumentDefinition.getProcessor().parse(argumentString.trim(), argumentDefinition.getParameter().getParameterizedType());
+                    try {
+                        object = argumentDefinition.getProcessor().parse(argumentString.trim(), argumentDefinition.getParameter().getParameterizedType());
+                    } catch (Throwable throwable) {
+                        object = null;
+                    }
                     mistakeType = object == null ? ArgumentMistakeType.EXCEPTION : ArgumentMistakeType.OK;
                 } else {
                     mistakeType = ArgumentMistakeType.NOT_SPECIFIED;
@@ -179,12 +180,35 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
         }
 
-//        if (mistakeTypes.contains(ArgumentMistakeType.EXCEPTION) || mistakeTypes.contains(ArgumentMistakeType.NOT_SPECIFIED)) throwUsage(definition, mistakeTypes);
+        if (mistakeTypes.contains(ArgumentMistakeType.EXCEPTION) || mistakeTypes.contains(ArgumentMistakeType.NOT_SPECIFIED))
+            throwUsage(definition, mistakeTypes);
         return parsedObjects;
     }
 
-    //endregion
+    private void throwUsage(@NotNull CommandDefinition definition, @NotNull List<ArgumentMistakeType> mistakesList) throws ACLFCommandException {
+        StringBuilder argumentsStringBuilder = new StringBuilder();
 
+        final List<ArgumentDefinition> stringParsedArgumentDefinitionList = definition.getArgumentDefinitions().stream()
+                .filter(ArgumentDefinition::isResponseArgument)
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < stringParsedArgumentDefinitionList.size(); i++) {
+            ArgumentMistakeType mistakeType = mistakesList.get(i) != null ? mistakesList.get(i) : ArgumentMistakeType.NOT_SPECIFIED;
+            ArgumentDefinition argumentDefinition = stringParsedArgumentDefinitionList.get(i);
+
+            argumentsStringBuilder
+                    .append(mistakeType.getChatColor())
+                    .append("[")
+                    .append(argumentDefinition.getName())
+                    .append("] ");
+        }
+
+        String argumentsString = argumentsStringBuilder.toString().trim();
+
+        throw new ACLFCommandException(definition.getCommandDescriptionScanner().getUsageMessage(definition, argumentsString));
+    }
+
+    //endregion
     private static CommandResponse getCommandResponseFor(CommandDefinition definition, CommandSender sender, String argumentsMessage) {
         if (definition.getFlagsSet().contains(DefinitionFlag.CONSOLE_SENDER_ONLY))
             return new ConsoleCommandResponse((ConsoleCommandSender) sender, definition.getCommandName(), argumentsMessage);
@@ -194,26 +218,6 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         return new CommandResponse(sender, definition.getCommandName(), argumentsMessage);
     }
 
-
-    //region Invocation
-//    private void invoke(CommandDefinition definition, CommandSender sender, List<Object> argumentObjects) {
-//        SenderScopeContext contextFor = senderScopeService.getContextFor(sender);
-//
-//        Runnable runnable = () -> {
-//            Object bean = context.getBean(definition.getControllerClass());
-//
-//            try {
-//                definition.getCommandMethod().invoke(bean, argumentObjects);
-//            } catch (IllegalAccessException | InvocationTargetException e) {
-//                e.printStackTrace();
-//            }
-//        };
-//
-//
-//        assert contextFor != null;
-//        contextFor.getSenderScopeThread().handleCallback(runnable);
-//    }
-    //endregion
 
     //region Checking
     private CommandProcessOutput checkAccess(CommandDefinition definition, CommandSender sender, SenderType senderType) {

@@ -1,8 +1,8 @@
 package com.mayakplay.aclf.controller;
 
 import com.mayakplay.aclf.annotation.*;
+import com.mayakplay.aclf.definition.response.CommandResponse;
 import com.mayakplay.aclf.exception.ACLFException;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 
 /**
  * @author mayakplay
@@ -18,20 +18,20 @@ public class TestController {
     @TranslatedString private final String SOME_TEXT = "";
     @TranslatedString private final String SOME_ANOTHER_TEXT = "";
 
-    private final CommandContainerService service;
-
-    public TestController(CommandContainerService service) {
-        this.service = service;
-
-        System.out.println(service.getDefaultArgumentProcessor());
-
+    public TestController() {
         counter ++;
         System.out.println(counter + " controller created");
 
-        System.out.println("created +");
 //        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
 //            System.out.println("            - " + element);
 //        }
+
+    }
+
+    @ChatMapping("test")
+    public void something(CommandResponse response, String string, String test) {
+
+        System.out.println(string + " : " + test);
 
     }
 
