@@ -44,6 +44,7 @@ public class ArgumentDefinition {
             final Argument annotation = parameter.getAnnotation(Argument.class);
 
             String name = annotation != null ? annotation.name() : parameter.getType().getSimpleName();
+            if (name.isEmpty()) name = parameter.getType().getSimpleName();
             boolean isResponseArgument = !CommandResponse.class.isAssignableFrom(parameter.getType());
             boolean isTail = commandDefinition.getFlagsSet().contains(DefinitionFlag.TAIL_ARG) && isLastIteration;
 

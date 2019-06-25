@@ -33,7 +33,6 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
