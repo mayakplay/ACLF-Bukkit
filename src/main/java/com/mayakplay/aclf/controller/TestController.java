@@ -1,6 +1,7 @@
 package com.mayakplay.aclf.controller;
 
 import com.mayakplay.aclf.annotation.*;
+import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 
 /**
  * @author mayakplay
@@ -16,7 +17,13 @@ public class TestController {
     @TranslatedString private final String SOME_TEXT = "";
     @TranslatedString private final String SOME_ANOTHER_TEXT = "";
 
-    public TestController() {
+    private final CommandContainerService service;
+
+    public TestController(CommandContainerService service) {
+        this.service = service;
+
+        System.out.println(service.getDefaultArgumentProcessor());
+
         counter ++;
         System.out.println(counter + " controller created");
 

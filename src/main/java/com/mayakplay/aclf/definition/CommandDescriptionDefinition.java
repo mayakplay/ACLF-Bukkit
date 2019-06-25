@@ -14,7 +14,7 @@ import java.lang.reflect.AnnotatedElement;
  * @since 23.06.2019.
  */
 @Getter
-class CommandDescriptionScanner {
+public class CommandDescriptionDefinition {
 
     private AnnotatedElement controllerDefinition;
     private AnnotatedElement commandDefinition;
@@ -29,7 +29,7 @@ class CommandDescriptionScanner {
     private String chatOnlyMessage;
     private String channelOnlyMessage;
 
-    CommandDescriptionScanner(AnnotatedElement controllerDefinition, AnnotatedElement commandDefinition) {
+    CommandDescriptionDefinition(AnnotatedElement controllerDefinition, AnnotatedElement commandDefinition) {
         this.controllerDefinition = controllerDefinition;
         this.commandDefinition = commandDefinition;
 

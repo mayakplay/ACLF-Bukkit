@@ -4,7 +4,7 @@ import com.mayakplay.aclf.annotation.Argument;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.definition.CommandControllerDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
-import com.mayakplay.aclf.stereotype.ArgumentParser;
+import com.mayakplay.aclf.stereotype.ArgumentProcessor;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.SenderType;
 import org.bukkit.command.CommandSender;
@@ -19,7 +19,7 @@ import org.bukkit.command.CommandSender;
  *
  * @see CommandController
  * @see Argument
- * @see ArgumentParser
+ * @see ArgumentProcessor
  * @see CommandContainerService
  */
 public interface CommandProcessingService {
@@ -27,7 +27,7 @@ public interface CommandProcessingService {
     /**
      * Method invokes command method if message and sender matches the conditions.
      * First word of the message is the {@link CommandControllerDefinition#getControllerName()} and
-     * second are {@link CommandDefinition#getCommandName()} or empty string &#34;&#34;.
+     * second are {@link CommandDefinition#getCommandDefinitionName()} or empty string &#34;&#34;.
      *
      * Both of it casts to lower case {@link String#toLowerCase()}
      *
@@ -35,6 +35,6 @@ public interface CommandProcessingService {
      * @param sender sender of command
      * @param senderType player, player, but from channel and console.
      */
-    CommandProcessOutput process(String message, CommandSender sender, SenderType senderType);
+    CommandProcessOutput handle(String message, CommandSender sender, SenderType senderType);
 
 }

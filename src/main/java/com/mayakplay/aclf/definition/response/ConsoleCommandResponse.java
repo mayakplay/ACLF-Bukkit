@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.pojo;
+package com.mayakplay.aclf.definition.response;
 
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ConsoleCommandResponse extends CommandResponse {
 
-    public ConsoleCommandResponse(@NotNull ConsoleCommandSender sender, @NotNull String commandName, @NotNull String subCommandName, @NotNull String argsMessage) {
-        super(sender, commandName, subCommandName, argsMessage);
+    public ConsoleCommandResponse(@NotNull ConsoleCommandSender sender, @NotNull String fullCommandName, @NotNull String argsMessage) {
+        super(sender, fullCommandName, argsMessage);
     }
 
     @Override

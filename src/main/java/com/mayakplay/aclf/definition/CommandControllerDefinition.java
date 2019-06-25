@@ -5,6 +5,7 @@ import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.OpsOnly;
 import com.mayakplay.aclf.annotation.Permitted;
 import com.mayakplay.aclf.annotation.TailArgumentCommand;
+import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;
@@ -19,6 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 
 /**
+ * idk what to do with this code, but it works
+ *
  * @author mayakplay
  * @version 0.0.1
  * @since 15.06.2019.
@@ -51,7 +54,7 @@ public class CommandControllerDefinition {
     private final List<String> permissionsList;
 
     @SuppressWarnings("Duplicates")
-    public static CommandControllerDefinition of(@NotNull Class<?> controllerClass, @NotNull String controllerBeanName) {
+    public static CommandControllerDefinition of(@NotNull Class<?> controllerClass, @NotNull String controllerBeanName, CommandContainerService commandContainerService) {
         //region Бредятина всякая
         final CommandMapping      commandMapping = AnnotatedElementUtils.getMergedAnnotation(controllerClass, CommandMapping.class);
         final Permitted           permitted = AnnotatedElementUtils.getMergedAnnotation(controllerClass, Permitted.class);
@@ -72,7 +75,7 @@ public class CommandControllerDefinition {
         CommandControllerDefinition commandControllerDefinition = new CommandControllerDefinition(commandName, flags, controllerClass, controllerBeanName, mappingAccess, permissionsList);
 
         for (Method method : controllerClass.getDeclaredMethods()) {
-            CommandDefinition of = CommandDefinition.of(method, commandControllerDefinition);
+            CommandDefinition of = CommandDefinition.of(method, commandControllerDefinition, commandContainerService);
 
             if (of != null)
                 commandControllerDefinition.commandDefinitionsList.add(of);

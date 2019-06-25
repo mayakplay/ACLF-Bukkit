@@ -1,6 +1,7 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.stereotype.ArgumentParser;
+import com.mayakplay.aclf.processor.argument.GSONArgumentProcessor;
+import com.mayakplay.aclf.stereotype.ArgumentProcessor;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -29,6 +30,6 @@ public @interface Argument {
     /**
      *
      */
-    Class<? extends ArgumentParser> processor();
+    Class<? extends ArgumentProcessor> processorClass() default GSONArgumentProcessor.class;
 
 }

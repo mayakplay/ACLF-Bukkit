@@ -4,14 +4,18 @@ import com.mayakplay.aclf.definition.CommandControllerDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
+import com.mayakplay.aclf.processor.argument.GSONArgumentProcessor;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
+import com.mayakplay.aclf.stereotype.ArgumentProcessor;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,14 +26,24 @@ import java.util.Map;
 @Component
 public class ACLFCommandContainerService implements CommandContainerService, ApplicationListener<ControllersClassesScanFinishedEvent> {
 
-    static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
+    private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
     @NotNull
     private final Map<String, CommandDefinition> commandDefinitionAssociationsMap = new HashMap<>();
 
-    @Override
-    public boolean containsCommand(@NotNull String commandName, @Nullable String subCommandName) {
-        return commandDefinitionAssociationsMap.containsKey(commandName + ":" + subCommandName);
+    private final HashMap<Class<? extends ArgumentProcessor>, ArgumentProcessor> argumentProcessorHashMap = new HashMap<>();
+    private final GSONArgumentProcessor defaultProcessor;
+
+    @Autowired
+    public ACLFCommandContainerService(List<ArgumentProcessor> argumentProcessorList, GSONArgumentProcessor defaultProcessor) {
+        for (ArgumentProcessor processor : argumentProcessorList) {
+            System.out.println(processor.getClass().getName());
+        }
+
+        this.defaultProcessor = defaultProcessor;
+        for (ArgumentProcessor processor : argumentProcessorList) {
+            argumentProcessorHashMap.put(processor.getClass(), processor);
+        }
     }
 
     @Override
@@ -46,11 +60,11 @@ public class ACLFCommandContainerService implements CommandContainerService, App
             Class<?> controllerClass = entry.getValue();
             String controllerBeanName = entry.getKey();
 
-            CommandControllerDefinition controllerDefinition = CommandControllerDefinition.of(controllerClass, controllerBeanName);
+            CommandControllerDefinition controllerDefinition = CommandControllerDefinition.of(controllerClass, controllerBeanName, this);
 
             for (CommandDefinition definition : controllerDefinition.getCommandDefinitionsList()) {
-                checkRegex(controllerDefinition.getControllerName(), definition.getCommandName(), controllerDefinition.getControllerClass().getName());
-                String fullCommandName = controllerDefinition.getControllerName() + ":" + definition.getCommandName();
+                checkRegex(controllerDefinition.getControllerName(), definition.getCommandDefinitionName(), controllerDefinition.getControllerClass().getName());
+                String fullCommandName = controllerDefinition.getControllerName() + ":" + definition.getCommandDefinitionName();
                 commandDefinitionAssociationsMap.put(fullCommandName, definition);
             }
         }
@@ -58,6 +72,17 @@ public class ACLFCommandContainerService implements CommandContainerService, App
         for (Map.Entry<String, CommandDefinition> entry : commandDefinitionAssociationsMap.entrySet()) {
             System.out.println(entry.getKey() + entry.getValue());
         }
+    }
+
+    @Nullable
+    @Override
+    public ArgumentProcessor getArgumentProcessorByClass(Class<? extends ArgumentProcessor> processorClass) {
+        return argumentProcessorHashMap.get(processorClass);
+    }
+
+    @NotNull
+    public ArgumentProcessor getDefaultArgumentProcessor() {
+        return defaultProcessor;
     }
 
     private void checkRegex(String commandName, String subCommandName, String className) {

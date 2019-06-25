@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.pojo;
+package com.mayakplay.aclf.definition.response;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PlayerCommandResponse extends CommandResponse {
 
-    public PlayerCommandResponse(@NotNull Player sender, @NotNull String commandName, @NotNull String subCommandName, @NotNull String argsMessage) {
-        super(sender, commandName, subCommandName, argsMessage);
+    public PlayerCommandResponse(@NotNull Player sender, @NotNull String fullCommandName, @NotNull String argsMessage) {
+        super(sender, fullCommandName, argsMessage);
     }
 
     @Override
