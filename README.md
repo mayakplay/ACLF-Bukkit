@@ -2,7 +2,7 @@
 | Plan  | Status  |
 | ------------ | ------------ |
 |Registration of Spring Addon Configurations|`complete`|
-|Scoped command controllers|`in progress`|
+|Command sender scoped beans|`complete`|
 |Translation injection|`in progress`|
 |Global ACLF configuration|`planning`|
 |Configurable addons configurations|`planning`|
