@@ -1,6 +1,7 @@
 package com.mayakplay.aclf.controller;
 
 import com.mayakplay.aclf.annotation.*;
+import com.mayakplay.aclf.exception.ACLFException;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 
 /**
@@ -37,11 +38,18 @@ public class TestController {
     @ChannelMapping("channel")
     public void test() {
 
+        System.out.println("some message from another command");
+
+        throw new RuntimeException("Wrong exception");
     }
 
     @ChatMapping("chat")
     public void test1() {
-        System.out.println("chat");
+
+        System.out.println("some message from command");
+
+        throw new ACLFException("Ahahaha lol");
+
     }
 
 }

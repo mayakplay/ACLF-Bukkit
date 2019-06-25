@@ -11,6 +11,7 @@ import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
+import com.mayakplay.aclf.infrastructure.SenderScopeRunnable;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
 import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,16 +115,10 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         SenderScopeContext scopeContext = senderScopeService.getContextFor(sender);
         if (scopeContext == null) return;
 
-        Runnable runnable = () -> {
+        SenderScopeRunnable runnable = () -> {
 
             Object bean = context.getBean(definition.getControllerClass());
-
-            try {
-                definition.getCommandMethod().invoke(bean, argumentsObjectsList.toArray());
-                throw new RuntimeException("ofqwiekhfbqjwkhevfjqgwevfmwhqevfmhqgwvef,jqhwvef,jqhwvef,qhwevf,hqwevf,h");
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+            definition.getCommandMethod().invoke(bean, argumentsObjectsList.toArray());
 
         };
 

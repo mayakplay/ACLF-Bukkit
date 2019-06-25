@@ -71,7 +71,7 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     @NotNull
     private SenderScopeContext createSenderContext(CommandSender sender) {
         String senderName = getSpecifySenderName(sender);
-        SenderScopeThread senderScopeThread = new SenderScopeThread(senderName + "_thread");
+        SenderScopeThread senderScopeThread = new SenderScopeThread(senderName + "_thread", sender);
         return new SenderScopeContext(sender, senderScopeThread);
     }
 
