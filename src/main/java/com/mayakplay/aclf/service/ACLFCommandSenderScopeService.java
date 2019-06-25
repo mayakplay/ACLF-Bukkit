@@ -31,11 +31,6 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     private static final long THREAD_REMOVE_TIME_TICKS = 20 * 5; //test
     private final HashMap<String, SenderScopeContext> sendersMap = new HashMap<>();
 
-    private CommandRegistryService commandRegistryService;
-
-    public ACLFCommandSenderScopeService(CommandRegistryService commandRegistryService) {
-        this.commandRegistryService = commandRegistryService;
-    }
 
     @Override
     public void onApplicationEvent(@NotNull ControllersClassesScanFinishedEvent event) {
@@ -76,7 +71,7 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     @NotNull
     private SenderScopeContext createSenderContext(CommandSender sender) {
         String senderName = getSpecifySenderName(sender);
-        SenderScopeThread senderScopeThread = new SenderScopeThread(senderName + "_thread", commandRegistryService);
+        SenderScopeThread senderScopeThread = new SenderScopeThread(senderName + "_thread");
         return new SenderScopeContext(sender, senderScopeThread);
     }
 

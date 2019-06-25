@@ -5,6 +5,7 @@ import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.service.interfaces.CommandContainerService;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.context.ApplicationListener;
@@ -21,7 +22,7 @@ import java.util.Map;
 @Component
 public class ACLFCommandContainerService implements CommandContainerService, ApplicationListener<ControllersClassesScanFinishedEvent> {
 
-    private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
+    static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
     @NotNull
     private final Map<String, CommandDefinition> commandDefinitionAssociationsMap = new HashMap<>();
@@ -48,8 +49,8 @@ public class ACLFCommandContainerService implements CommandContainerService, App
             CommandControllerDefinition controllerDefinition = CommandControllerDefinition.of(controllerClass, controllerBeanName);
 
             for (CommandDefinition definition : controllerDefinition.getCommandDefinitionsList()) {
-                checkRegex(controllerDefinition.getCommandName(), definition.getCommandName());
-                String fullCommandName = controllerDefinition.getCommandName() + ":" + definition.getCommandName();
+                checkRegex(controllerDefinition.getControllerName(), definition.getCommandName(), controllerDefinition.getControllerClass().getName());
+                String fullCommandName = controllerDefinition.getControllerName() + ":" + definition.getCommandName();
                 commandDefinitionAssociationsMap.put(fullCommandName, definition);
             }
         }
@@ -59,10 +60,12 @@ public class ACLFCommandContainerService implements CommandContainerService, App
         }
     }
 
-    private void checkRegex(String commandName, String subCommandName) {
+    private void checkRegex(String commandName, String subCommandName, String className) {
         if (subCommandName.isEmpty()) subCommandName = "{BLANK}";
         if (!commandName.matches(COMMAND_NAME_REGEX) || !subCommandName.matches(COMMAND_NAME_REGEX)) {
-            throw new ACLFCriticalException("Check [" + commandName + " " + subCommandName + "] regex! It must be ([a-z] or empty)");
+            String message = "Check [" + commandName + " " + subCommandName + "] command name regex " +
+                    "in \"" + ChatColor.WHITE + className + ChatColor.RED + "\" It must be ([a-z] or empty)";
+            throw new ACLFCriticalException(message);
         }
     }
 }

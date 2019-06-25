@@ -10,7 +10,3 @@ public enum MappingAccess {
     CHAT, CHANNEL, BOTH
 
 }
-
-    public static void main(String[] args) {
-        System.out.println();
-    }

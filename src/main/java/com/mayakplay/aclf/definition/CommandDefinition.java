@@ -1,25 +1,30 @@
 package com.mayakplay.aclf.definition;
 
-import com.google.common.collect.ImmutableSet;
 import com.mayakplay.aclf.annotation.CommandMapping;
+import com.mayakplay.aclf.annotation.OpsOnly;
 import com.mayakplay.aclf.annotation.Permitted;
+import com.mayakplay.aclf.annotation.TailArgumentCommand;
 import com.mayakplay.aclf.type.DefinitionFlag;
-import lombok.Getter;
+import com.mayakplay.aclf.type.MappingAccess;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author mayakplay
  * @version 0.0.1
  * @since 15.06.2019.
  */
-public class CommandDefinition implements AnnotatedElement {
+@ToString
+@EqualsAndHashCode(of = {"commandName", "commandControllerDefinition"})
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class CommandDefinition {
 
     @NotNull
     @Getter
@@ -32,88 +37,42 @@ public class CommandDefinition implements AnnotatedElement {
     private final Method commandMethod;
 
     @NotNull
-    private final CommandControllerDefinition commandControllerDefinition;
+    @ToString.Exclude private final CommandControllerDefinition commandControllerDefinition;
 
     @NotNull
     private final Set<String> permissionSet;
 
     @NotNull
-    private final CommandDescriptionScanner commandDescriptionScanner;
-
-    private CommandDefinition(@NotNull String commandName, @NotNull Method commandMethod,
-                              @NotNull CommandControllerDefinition commandControllerDefinition, DefinitionFlag... flags) {
-        this.commandName = commandName;
-        this.commandMethod = commandMethod;
-        this.flags = EnumSet.allOf(DefinitionFlag.class);
-        this.flags.addAll(Arrays.asList(flags));
-        this.commandControllerDefinition = commandControllerDefinition;
-        this.permissionSet = new HashSet<>();
-
-        fillPermissions();
-
-        this.commandDescriptionScanner = new CommandDescriptionScanner(commandControllerDefinition, this);
-    }
-
-    private void fillPermissions() {
-        Permitted controllerAnnotation = commandControllerDefinition.getAnnotation(Permitted.class);
-        Permitted annotation = this.getAnnotation(Permitted.class);
-
-        if (controllerAnnotation != null) permissionSet.addAll(Arrays.asList(controllerAnnotation.value()));
-        if (annotation != null) permissionSet.addAll(Arrays.asList(annotation.value()));
-    }
-
-    @Nullable
-    public static CommandDefinition of(@NotNull Method method, @NotNull CommandControllerDefinition controllerDefinition) {
-        CommandMapping mergedAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CommandMapping.class);
-        if (mergedAnnotation == null) {
-            return null;
-        } else {
-            String commandName = mergedAnnotation.value();
-            return new CommandDefinition(commandName, method, controllerDefinition);
-        }
-    }
-
-    @Override
-    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        return AnnotatedElementUtils.findMergedAnnotation(commandMethod, annotationClass);
-    }
-
-    @Override
-    public Annotation[] getAnnotations() {
-        return commandMethod.getAnnotations();
-    }
-
-    @Override
-    public Annotation[] getDeclaredAnnotations() {
-        return commandMethod.getDeclaredAnnotations();
-    }
-
-    public String getControllerCommandName() {
-        return commandControllerDefinition.getCommandName();
-    }
+    private final MappingAccess mappingAccess;
 
     @NotNull
-    public Set<String> getPermissionSet() {
-        return ImmutableSet.copyOf(permissionSet);
+    private final CommandDescriptionScanner commandDescriptionScanner;
+
+    @SuppressWarnings("Duplicates")
+    public static CommandDefinition of(Method commandMethod, CommandControllerDefinition commandControllerDefinition) {
+        final CommandMapping commandMapping = AnnotatedElementUtils.getMergedAnnotation(commandMethod, CommandMapping.class);
+        if (commandMapping == null) return null;
+        final Permitted permitted = AnnotatedElementUtils.getMergedAnnotation(commandMethod, Permitted.class);
+        final OpsOnly opsOnly = AnnotatedElementUtils.getMergedAnnotation(commandMethod, OpsOnly.class);
+        final TailArgumentCommand tailArgumentCommand = AnnotatedElementUtils.getMergedAnnotation(commandMethod, TailArgumentCommand.class);
+
+        final String commandName= commandMapping.value();
+        final EnumSet<DefinitionFlag> flags                  = EnumSet.noneOf(DefinitionFlag.class);
+        flags.addAll(commandControllerDefinition.getFlags());
+        final Set<String> permissionsSet = new HashSet<>(commandControllerDefinition.getPermissionsList());
+
+        final MappingAccess mappingAccess = commandMapping.privacy();
+
+        if (opsOnly != null)                             flags.add(DefinitionFlag.OPS_ONLY);
+        if (tailArgumentCommand != null)                 flags.add(DefinitionFlag.TAIL_ARG);
+        if (mappingAccess.equals(MappingAccess.CHAT))    flags.add(DefinitionFlag.CHAT_ONLY);
+        if (mappingAccess.equals(MappingAccess.CHANNEL)) flags.add(DefinitionFlag.CHANNEL_ONLY);
+
+        if (permitted != null) permissionsSet.addAll(Arrays.asList(permitted.value()));
+
+        CommandDescriptionScanner commandDescriptionScanner = new CommandDescriptionScanner(commandControllerDefinition.getControllerClass(), commandMethod);
+
+        return new CommandDefinition(commandName, flags, commandMethod, commandControllerDefinition, permissionsSet, mappingAccess, commandDescriptionScanner);
     }
 
-    public boolean hasOpsOnlyFlag() {
-        return flags.contains(DefinitionFlag.OPS_ONLY);
-    }
-
-    public boolean hasPlayerOnlyFlag() {
-        return flags.contains(DefinitionFlag.PLAYER_SENDER_ONLY);
-    }
-
-    public boolean hasConsoleOnlyFlag() {
-        return flags.contains(DefinitionFlag.OPS_ONLY);
-    }
-
-    public boolean hasChatOnlyFlag() {
-        return flags.contains(DefinitionFlag.CHAT_ONLY);
-    }
-
-    public boolean hasChannelOnlyFlag() {
-        return flags.contains(DefinitionFlag.CHANNEL_ONLY);
-    }
 }

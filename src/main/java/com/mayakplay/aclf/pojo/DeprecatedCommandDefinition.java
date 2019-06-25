@@ -201,7 +201,7 @@
 //    }
 //
 //    @NotNull
-//    public String getCommandName() {
+//    public String getControllerName() {
 //        return commandName;
 //    }
 //
@@ -223,7 +223,7 @@
 //
 //    @Override
 //    public String toString() {
-//        String fullCommandName = getCommandName() + ":" + getSubCommandName();
+//        String fullCommandName = getControllerName() + ":" + getSubCommandName();
 //
 //        StringBuilder toStringStringBuilder = new StringBuilder();
 //

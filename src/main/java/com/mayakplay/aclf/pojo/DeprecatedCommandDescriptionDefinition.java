@@ -63,6 +63,6 @@
 //    }
 //
 //    public String getUsageMessage(DeprecatedCommandDefinition definition, String argumentsString) {
-//        return ChatColor.WHITE + "Usage: " + definition.getCommandName() + " " + definition.getSubCommandName() + " " + argumentsString;
+//        return ChatColor.WHITE + "Usage: " + definition.getControllerName() + " " + definition.getSubCommandName() + " " + argumentsString;
 //    }
 //}

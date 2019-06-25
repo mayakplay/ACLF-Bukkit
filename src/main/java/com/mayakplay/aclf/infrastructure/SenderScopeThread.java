@@ -12,12 +12,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class SenderScopeThread extends Thread {
 
-    private CommandRegistryService commandRegistryService;
     private LinkedBlockingQueue<Runnable> tasksQueue = new LinkedBlockingQueue<>();
 
-    public SenderScopeThread(@NotNull String name, CommandRegistryService commandRegistryService) {
+    public SenderScopeThread(@NotNull String name) {
         super(name);
-        this.commandRegistryService = commandRegistryService;
     }
 
     @SneakyThrows

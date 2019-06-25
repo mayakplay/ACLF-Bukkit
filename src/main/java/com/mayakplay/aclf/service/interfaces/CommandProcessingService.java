@@ -2,7 +2,8 @@ package com.mayakplay.aclf.service.interfaces;
 
 import com.mayakplay.aclf.annotation.Argument;
 import com.mayakplay.aclf.annotation.CommandController;
-import com.mayakplay.aclf.pojo.DeprecatedCommandDefinition;
+import com.mayakplay.aclf.definition.CommandControllerDefinition;
+import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.stereotype.ArgumentParser;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.SenderType;
@@ -19,14 +20,14 @@ import org.bukkit.command.CommandSender;
  * @see CommandController
  * @see Argument
  * @see ArgumentParser
- * @see CommandRegistryService
+ * @see CommandContainerService
  */
 public interface CommandProcessingService {
 
     /**
      * Method invokes command method if message and sender matches the conditions.
-     * First word of the message is the {@link DeprecatedCommandDefinition#getCommandName()} and
-     * second are {@link DeprecatedCommandDefinition#getSubCommandName()} or empty string &#34;&#34;.
+     * First word of the message is the {@link CommandControllerDefinition#getControllerName()} and
+     * second are {@link CommandDefinition#getCommandName()} or empty string &#34;&#34;.
      *
      * Both of it casts to lower case {@link String#toLowerCase()}
      *
