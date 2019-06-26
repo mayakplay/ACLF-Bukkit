@@ -1,9 +1,8 @@
-package com.mayakplay.aclf.service;
+package com.mayakplay.aclf.service.command;
 
 import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeThread;
-import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -29,8 +28,10 @@ import java.util.Objects;
 public class ACLFCommandSenderScopeService implements Listener, CommandSenderScopeService, ApplicationListener<ControllersClassesScanFinishedEvent> {
 
     private static final long THREAD_REMOVE_TIME_TICKS = 20 * 5; //test
+
     private final HashMap<String, SenderScopeContext> sendersMap = new HashMap<>();
 
+    //region CommandSenderScopeService implementation
 
     @Override
     public void onApplicationEvent(@NotNull ControllersClassesScanFinishedEvent event) {
@@ -46,7 +47,10 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     public SenderScopeContext getContextFor(CommandSender sender) {
         return sendersMap.get(getSpecifySenderName(sender));
     }
-    //region event
+
+    //endregion
+
+    //region Event
 
     @EventHandler
     private void handleJoinEvent(PlayerJoinEvent event) {
@@ -66,6 +70,7 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     }
 
     //endregion
+
     //region Util
 
     @NotNull

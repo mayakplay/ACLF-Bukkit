@@ -5,7 +5,7 @@ import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.OpsOnly;
 import com.mayakplay.aclf.annotation.Permitted;
 import com.mayakplay.aclf.annotation.TailArgumentCommand;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
+import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;

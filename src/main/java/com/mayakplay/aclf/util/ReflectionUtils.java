@@ -12,7 +12,7 @@ import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Objects;
+import java.util.HashMap;
 
 /**
  * @author mayakplay
@@ -32,10 +32,6 @@ public class ReflectionUtils {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println(Objects.requireNonNull(getMethodCallerClass()).getSimpleName());
-    }
-
     /**
      * ВЗЛОМ ЖОПЫ
      */
@@ -48,7 +44,11 @@ public class ReflectionUtils {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
+    private static final HashMap<ClassLoader, Reflections> reflectionsMap = new HashMap<>();
+
     public static Reflections getReflectionsFor(ClassLoader classLoader, String mainClassPackage) {
+        if (reflectionsMap.containsKey(classLoader)) return reflectionsMap.get(classLoader);
+
         return new Reflections(new ConfigurationBuilder()
                 .setScanners(
                         new SubTypesScanner(false),

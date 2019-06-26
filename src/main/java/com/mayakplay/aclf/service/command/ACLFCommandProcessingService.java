@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.service;
+package com.mayakplay.aclf.service.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -13,9 +13,6 @@ import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeRunnable;
 import com.mayakplay.aclf.infrastructure.SenderScopeThread;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
-import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
-import com.mayakplay.aclf.service.interfaces.CommandSenderScopeService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.type.DefinitionFlag;
@@ -49,6 +46,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ACLFCommandProcessingService implements Listener, CommandProcessingService {
 
+    public static String COMMAND_REGEX = " ";
+
     //region Construction
     private final Gson gson;
     private final AnnotationConfigApplicationContext context;
@@ -60,7 +59,9 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     @Override
     public CommandProcessOutput handle(String message, CommandSender sender, SenderType senderType) {
         try {
-            return includedCommandProcessing(message, sender, senderType);
+            CommandProcessOutput commandProcessOutput = includedCommandProcessing(message, sender, senderType);
+            System.out.println(commandProcessOutput);
+            return commandProcessOutput;
         } catch (Throwable throwable) {
             String deepACLFException = SenderScopeThread.getDeepACLFException(throwable);
             sender.sendMessage(ChatColor.RED + deepACLFException);
@@ -73,6 +74,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
      * existence checking -> access checking -> arguments checking -> OK
      */
     private CommandProcessOutput includedCommandProcessing(String message, CommandSender sender, SenderType senderType) {
+        System.out.println(message);
         //region existence checking
         val definition = containerService.getDefinitionByMessage(message);
 
@@ -91,7 +93,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
         int commandNameLength = definition.getCommandName().length() + 1;
 
+        System.out.println(":" + definition.getCommandName() + ":");
+
         String onlyArgumentsMessage = message.length() >= commandNameLength ? message.substring(commandNameLength) : "";
+
+        System.out.println("|" + onlyArgumentsMessage + "|");
 
         val argumentsObjectsList = processArguments(definition, sender, onlyArgumentsMessage.trim());
 
@@ -127,7 +133,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     private List<Object> processArguments(CommandDefinition definition, CommandSender sender, String argumentsMessage) throws ACLFCommandException {
         CommandResponse response = getCommandResponseFor(definition, sender, argumentsMessage);
 
-        String[] split = argumentsMessage.split(" ");
+        String[] split = argumentsMessage.split(COMMAND_REGEX);
         if (split.length > 0 && (split[0].trim().isEmpty())) split = new String[0];
 
         final ImmutableList<String> argumentStringList = ImmutableList.copyOf(Arrays.asList(split));
@@ -277,14 +283,6 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         CommandProcessOutput process = handle(event.getMessage().substring(1), event.getPlayer(), SenderType.PLAYER_CHAT);
 
         if (process.equals(CommandProcessOutput.OK)) event.setCancelled(true);
-//        SenderScopeContext contextFor = senderScopeService.getContextFor(event.getPlayer());
-//        if (contextFor != null) {
-//            contextFor.getSenderScopeThread().handleCallback(() -> {
-//                TestController bean = context.getBean(TestController.class);
-//            });
-//        } else {
-//            System.out.println("----------------- SENDER CONTEXT = NULL -----------------"); //test
-//        }
     }
 
     /**

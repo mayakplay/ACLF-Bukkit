@@ -3,7 +3,7 @@ package com.mayakplay.aclf.definition;
 import com.google.common.collect.ImmutableList;
 import com.mayakplay.aclf.annotation.Argument;
 import com.mayakplay.aclf.definition.response.CommandResponse;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
+import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.stereotype.ArgumentProcessor;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import lombok.AccessLevel;

@@ -8,7 +8,7 @@ import com.mayakplay.aclf.annotation.OpsOnly;
 import com.mayakplay.aclf.annotation.Permitted;
 import com.mayakplay.aclf.annotation.TailArgumentCommand;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
+import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;
@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -61,28 +62,41 @@ public class CommandDefinition {
     @SuppressWarnings("Duplicates")
     public static CommandDefinition of(Method commandMethod, CommandControllerDefinition commandControllerDefinition, CommandContainerService commandContainerService) {
         final CommandMapping commandMapping = AnnotatedElementUtils.getMergedAnnotation(commandMethod, CommandMapping.class);
+
+        //return null if command @CommandMapping does not found
+        //or method has "static" modifier
         if (commandMapping == null) return null;
-        final Permitted permitted = AnnotatedElementUtils.getMergedAnnotation(commandMethod, Permitted.class);
-        final OpsOnly opsOnly = AnnotatedElementUtils.getMergedAnnotation(commandMethod, OpsOnly.class);
+        if (Modifier.isStatic(commandMethod.getModifiers())) return null;
+
+        //access annotation define
+        final Permitted permitted                     = AnnotatedElementUtils.getMergedAnnotation(commandMethod, Permitted.class);
+        final OpsOnly opsOnly                         = AnnotatedElementUtils.getMergedAnnotation(commandMethod, OpsOnly.class);
         final TailArgumentCommand tailArgumentCommand = AnnotatedElementUtils.getMergedAnnotation(commandMethod, TailArgumentCommand.class);
 
-        final String commandName= commandMapping.value();
-        final EnumSet<DefinitionFlag> flags                  = EnumSet.noneOf(DefinitionFlag.class);
-        flags.addAll(commandControllerDefinition.getFlags());
-        final Set<String> permissionsSet = new HashSet<>(commandControllerDefinition.getPermissionsList());
+        //command definition fields measure
+        final String commandName            = commandMapping.value();
+        final EnumSet<DefinitionFlag> flags = EnumSet.noneOf(DefinitionFlag.class);
+        final MappingAccess mappingAccess   = commandMapping.privacy();
+        //                                                  adding controller's permissions
+        final Set<String> permissionsSet    = new HashSet<>(commandControllerDefinition.getPermissionsList());
 
-        final MappingAccess mappingAccess = commandMapping.privacy();
+        //adding controller's flags
+        flags.addAll(commandControllerDefinition.getFlags());
 
         if (opsOnly != null)                             flags.add(DefinitionFlag.OPS_ONLY);
         if (tailArgumentCommand != null)                 flags.add(DefinitionFlag.TAIL_ARG);
         if (mappingAccess.equals(MappingAccess.CHAT))    flags.add(DefinitionFlag.CHAT_ONLY);
         if (mappingAccess.equals(MappingAccess.CHANNEL)) flags.add(DefinitionFlag.CHANNEL_ONLY);
 
+        //adding permissions from method
         if (permitted != null) permissionsSet.addAll(Arrays.asList(permitted.value()));
 
+        //@Documented scanner instance
         CommandDescriptionDefinition commandDescriptionScanner = new CommandDescriptionDefinition(commandControllerDefinition.getControllerClass(), commandMethod);
+
         CommandDefinition commandDefinition = new CommandDefinition(commandName, flags, commandMethod, commandControllerDefinition, permissionsSet, mappingAccess, commandDescriptionScanner);
 
+        //Argument definitions list
         List<ArgumentDefinition> list = ArgumentDefinition.of(commandDefinition, commandContainerService);
 
         commandDefinition.argumentDefinitions.addAll(list);
@@ -105,6 +119,8 @@ public class CommandDefinition {
     }
 
     /**
+     * FULL COMMAND NAME
+     *
      * command of 0 words EXCEPTION xD
      * command of 1 word  "commandName"
      * command of 2 words "commandName:subCommandName"

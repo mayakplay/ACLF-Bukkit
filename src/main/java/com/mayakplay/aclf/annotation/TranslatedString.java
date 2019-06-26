@@ -1,6 +1,6 @@
 package com.mayakplay.aclf.annotation;
 
-import com.mayakplay.aclf.service.interfaces.TranslationService;
+import com.mayakplay.aclf.service.translation.TranslationService;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

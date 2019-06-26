@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.service.interfaces;
+package com.mayakplay.aclf.service.command;
 
 import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.definition.response.CommandResponse;

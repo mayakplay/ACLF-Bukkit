@@ -1,7 +1,7 @@
 package com.mayakplay.aclf.annotation;
 
 
-import com.mayakplay.aclf.service.interfaces.CommandProcessingService;
+import com.mayakplay.aclf.service.command.CommandProcessingService;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

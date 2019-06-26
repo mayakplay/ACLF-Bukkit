@@ -3,7 +3,7 @@ package com.mayakplay.aclf.processor;
 import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.TranslatedString;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
-import com.mayakplay.aclf.service.interfaces.TranslationService;
+import com.mayakplay.aclf.service.translation.TranslationService;
 import com.mayakplay.aclf.util.ReflectionUtils;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;

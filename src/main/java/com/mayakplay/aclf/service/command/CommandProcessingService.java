@@ -1,4 +1,4 @@
-package com.mayakplay.aclf.service.interfaces;
+package com.mayakplay.aclf.service.command;
 
 import com.mayakplay.aclf.annotation.Argument;
 import com.mayakplay.aclf.annotation.CommandController;

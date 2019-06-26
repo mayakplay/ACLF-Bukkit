@@ -1,22 +1,22 @@
-package com.mayakplay.aclf.service;
+package com.mayakplay.aclf.service.command;
 
+import com.google.common.collect.ImmutableList;
 import com.mayakplay.aclf.definition.CommandControllerDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.processor.argument.GSONArgumentProcessor;
-import com.mayakplay.aclf.service.interfaces.CommandContainerService;
 import com.mayakplay.aclf.stereotype.ArgumentProcessor;
+import com.mayakplay.aclf.util.StaticUtils;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author mayakplay
@@ -28,12 +28,24 @@ public class ACLFCommandContainerService implements CommandContainerService, App
 
     private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
-    @NotNull
-    private final Map<String, CommandDefinition> commandDefinitionAssociationsMap = new HashMap<>();
+    //region Construction
+    /**
+     * &lt;Full command name, Command definition&gt;
+     */
+    @NotNull private final Map<String, CommandDefinition> commandDefinitionAssociationsMap = new HashMap<>();
+
+    /**
+     * &lt;First command name, Command definitions list&gt;
+     */
+    @NotNull private final Map<String, List<CommandDefinition>> commandDefinitionsListAssociationsMap = new HashMap<>();
 
     private final HashMap<Class<? extends ArgumentProcessor>, ArgumentProcessor> argumentProcessorHashMap = new HashMap<>();
     private final GSONArgumentProcessor defaultProcessor;
 
+    /**
+     * @param argumentProcessorList fills {@link #argumentProcessorHashMap} from {@link ApplicationContext} beans
+     * @param defaultProcessor getting the {@link GSONArgumentProcessor} instance
+     */
     @Autowired
     public ACLFCommandContainerService(List<ArgumentProcessor> argumentProcessorList, GSONArgumentProcessor defaultProcessor) {
         for (ArgumentProcessor processor : argumentProcessorList) {
@@ -45,11 +57,24 @@ public class ACLFCommandContainerService implements CommandContainerService, App
             argumentProcessorHashMap.put(processor.getClass(), processor);
         }
     }
+    //endregion
 
+    //region CommandContainerService implementation
     @Override
     @Nullable
     public CommandDefinition getDefinition(@NotNull String commandName, @Nullable String subCommandName) {
-        return commandDefinitionAssociationsMap.get(commandName + ":" + subCommandName);
+        String fullCommandName = commandName;
+        if (subCommandName != null) fullCommandName += ":" + subCommandName;
+
+        return commandDefinitionAssociationsMap.get(fullCommandName.toLowerCase());
+    }
+
+    @Override
+    @NotNull
+    public List<CommandDefinition> getDefinitionsByFirstCommandName(@NotNull String firstCommandName) {
+        List<CommandDefinition> commandDefinitions = commandDefinitionsListAssociationsMap.get(firstCommandName);
+
+        return commandDefinitions == null ? Collections.emptyList() : ImmutableList.copyOf(commandDefinitions);
     }
 
     @Override
@@ -63,9 +88,25 @@ public class ACLFCommandContainerService implements CommandContainerService, App
             CommandControllerDefinition controllerDefinition = CommandControllerDefinition.of(controllerClass, controllerBeanName, this);
 
             for (CommandDefinition definition : controllerDefinition.getCommandDefinitionsList()) {
-                checkRegex(controllerDefinition.getControllerName(), definition.getCommandDefinitionName(), controllerDefinition.getControllerClass().getName());
-                String fullCommandName = controllerDefinition.getControllerName() + ":" + definition.getCommandDefinitionName();
-                commandDefinitionAssociationsMap.put(fullCommandName, definition);
+                checkRegex(definition.getFirstCommandName(), definition.getSecondCommandName(), controllerDefinition.getControllerClass().getName());
+
+                //region throw if exists
+                if (commandDefinitionAssociationsMap.containsKey(definition.getCommandName()))
+                    throw new ACLFCriticalException("Command with name \"" + ChatColor.AQUA + definition.getCommandName() + "\" already exists!");
+                //endregion
+
+                //full command name association
+                commandDefinitionAssociationsMap.put(definition.getCommandName(), definition);
+
+                //region first command name association
+                List<CommandDefinition> commandDefinitions =
+                        commandDefinitionsListAssociationsMap.computeIfAbsent(definition.getFirstCommandName(), s -> new ArrayList<>());
+                commandDefinitions.add(definition);
+                //endregion
+
+                //region avoid bukkit commands registerer (plguin.yml)
+                StaticUtils.registerCommand(definition.getFirstCommandName());
+                //endregion
             }
         }
 
@@ -80,17 +121,27 @@ public class ACLFCommandContainerService implements CommandContainerService, App
         return argumentProcessorHashMap.get(processorClass);
     }
 
+    @Override
     @NotNull
     public ArgumentProcessor getDefaultArgumentProcessor() {
         return defaultProcessor;
     }
+    //endregion
 
-    private void checkRegex(String commandName, String subCommandName, String className) {
-        if (subCommandName.isEmpty()) subCommandName = "{BLANK}";
-        if (!commandName.matches(COMMAND_NAME_REGEX) || !subCommandName.matches(COMMAND_NAME_REGEX)) {
+    //region Util
+    private static void checkRegex(@NotNull String commandName, @Nullable String subCommandName, String className) {
+        boolean mistake = false;
+
+        if (!commandName.matches(COMMAND_NAME_REGEX)) mistake = true;
+        if (subCommandName != null && !subCommandName.matches(COMMAND_NAME_REGEX)) mistake = true;
+
+        if (mistake) {
             String message = "Check [" + commandName + " " + subCommandName + "] command name regex " +
                     "in \"" + ChatColor.WHITE + className + ChatColor.RED + "\" It must be ([a-z] or empty)";
             throw new ACLFCriticalException(message);
         }
+
     }
+    //endregion
+
 }
