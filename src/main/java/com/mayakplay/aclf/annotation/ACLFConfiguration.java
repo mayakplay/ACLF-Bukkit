@@ -15,15 +15,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Configuration
 @ComponentScan
-//@Import({
-//        BukkitEventListenerRegisterBeanPostProcessor.class,
-//        CommandControllerRegistererBeanPostProcessor.class,
-//        TranslatedAnnotationBeanPostProcessor.class
-//})
 @Retention(RUNTIME)
 @Target({TYPE, PACKAGE})
-public @interface ACLFConfiguration {
-
-
-
-}
+public @interface ACLFConfiguration {}

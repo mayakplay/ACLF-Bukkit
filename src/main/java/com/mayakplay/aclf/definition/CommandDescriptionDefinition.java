@@ -1,8 +1,10 @@
 package com.mayakplay.aclf.definition;
 
+import com.mayakplay.aclf.annotation.CommandDescription;
 import com.mayakplay.aclf.annotation.Documented;
 import lombok.Getter;
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -30,6 +32,8 @@ public class CommandDescriptionDefinition {
     private String chatOnlyMessage;
     private String channelOnlyMessage;
 
+    @Nullable private String description;
+
     CommandDescriptionDefinition(AnnotatedElement controllerDefinition, AnnotatedElement commandDefinition) {
         this.controllerDefinition = controllerDefinition;
         this.commandDefinition = commandDefinition;
@@ -41,6 +45,9 @@ public class CommandDescriptionDefinition {
         Documented annotation = controllerDefinition.getAnnotation(Documented.class);
         Documented commandAnnotation = commandDefinition.getAnnotation(Documented.class);
         Documented documentedAnnotation = commandAnnotation != null ? commandAnnotation : annotation;
+
+        CommandDescription description = commandDefinition.getAnnotation(CommandDescription.class);
+        if (description != null) this.description = description.value();
 
         if (documentedAnnotation != null) {
             this.hasDisplayedInHelp = documentedAnnotation.displayInHelp();

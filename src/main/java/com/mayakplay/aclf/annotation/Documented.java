@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * The annotation above the class will apply to
  * all methods marked with mapping annotations,
- * but annotations above the method will go in priority.
+ * but annotations above the method will be in priority.
  *
  * Date: 16.04.2019<br/>
  * @author Mayakplay
@@ -83,9 +83,17 @@ public @interface Documented {
     @TranslatedString
     String usage() default DEFAULT_USAGE_MESSAGE;
 
+    /**
+     * This message will be displayed when
+     * player tries to use chat only command from channel
+     */
     @TranslatedString
     String chatOnlyMessage() default DEFAULT_CHAT_ONLY_MESSAGE;
 
+    /**
+     * This message will be displayed when
+     * player tries to use channel only command from chat
+     */
     @TranslatedString
     String channelOnlyMessage() default DEFAULT_CHANNEL_ONLY_MESSAGE;
 

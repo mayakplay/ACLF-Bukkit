@@ -8,6 +8,8 @@ import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.processor.argument.GSONArgumentProcessor;
 import com.mayakplay.aclf.stereotype.ArgumentProcessor;
 import com.mayakplay.aclf.util.StaticUtils;
+import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -112,6 +114,13 @@ public class ACLFCommandContainerService implements CommandContainerService, App
 
         for (Map.Entry<String, CommandDefinition> entry : commandDefinitionAssociationsMap.entrySet()) {
             System.out.println(entry.getKey() + entry.getValue());
+
+            String description = entry.getValue().getCommandDescriptionScanner().getDescription();
+            if (description != null) {
+                for (String s : WordUtils.wrap(description, 40, null, true).split("\n")) {
+                    Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "  " + s);
+                }
+            }
         }
     }
 

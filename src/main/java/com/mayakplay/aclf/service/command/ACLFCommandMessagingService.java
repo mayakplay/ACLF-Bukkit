@@ -48,7 +48,7 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
                 send(sender, description.getPlayersOnlyMessage());
                 break;
             case CONSOLE_ONLY:
-                send(sender, description.getPlayersOnlyMessage());
+                send(sender, description.getConsoleOnlyMessage());
                 break;
             case CHAT_ONLY:
                 send(sender, description.getChatOnlyMessage());
@@ -60,13 +60,14 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
                 send(sender, getUsageMessage(commandDefinition, mistakeTypes));
                 break;
             case EXCEPTION:
-                send(sender, exceptionMessage);
+                if (exceptionMessage != null)
+                    send(sender, exceptionMessage);
                 break;
         }
 
     }
 
-    private void send(CommandSender sender, String message) {
+    private void send(CommandSender sender, @NotNull String message) {
         sender.sendMessage(ChatColor.RED + StaticUtils.replceColors(message));
     }
 
@@ -105,7 +106,7 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
             argumentsStringBuilder
                     .append(mistakeType.getChatColor())
                     .append("[")
-                    .append(argumentDefinition.getName())
+                    .append(ChatColor.stripColor(argumentDefinition.getName()))
                     .append("] ");
         }
 
