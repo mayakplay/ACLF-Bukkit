@@ -1,0 +1,8 @@
+#Команды
+command.mistake.opsonly: "Эта команда только для операторов!"
+command.mistake.permissions: "У вас недостаточно прав для использования этой команды!"
+command.mistake.consoleonly: "Эту команду можно использовать только через консоль!"
+command.mistake.playeronly: "Эта команда только для игроков!"
+command.mistake.usage: "Использование: {AQUA}{COMMAND} {ARGUMENTS}"
+command.mistake.chatonly: "Эту команду можно использовать только в чате!"
+command.mistake.channelonly: "Эту команду можно использовать только через канал!"

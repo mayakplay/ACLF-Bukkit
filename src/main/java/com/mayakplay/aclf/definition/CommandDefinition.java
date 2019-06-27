@@ -12,6 +12,7 @@ import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -171,6 +172,10 @@ public class CommandDefinition {
     public boolean isForChannelOnly() {
         return getFlagsSet().contains(DefinitionFlag.CHANNEL_ONLY) &&
                 !getFlagsSet().contains(DefinitionFlag.CHAT_ONLY);
+    }
+
+    public Plugin getPlugin() {
+        return commandControllerDefinition.getPlugin();
     }
 
 }

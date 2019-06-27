@@ -40,7 +40,6 @@ public class CommandDescriptionDefinition {
     private void scan() {
         Documented annotation = controllerDefinition.getAnnotation(Documented.class);
         Documented commandAnnotation = commandDefinition.getAnnotation(Documented.class);
-
         Documented documentedAnnotation = commandAnnotation != null ? commandAnnotation : annotation;
 
         if (documentedAnnotation != null) {

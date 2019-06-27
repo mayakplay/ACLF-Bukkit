@@ -1,8 +1,11 @@
 package com.mayakplay.aclf.service.command;
 
 import com.mayakplay.aclf.definition.CommandDefinition;
-import com.mayakplay.aclf.definition.response.CommandResponse;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
+import com.mayakplay.aclf.type.CommandProcessOutput;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -13,8 +16,37 @@ import java.util.List;
  */
 public interface CommandMessagingService {
 
-    void sendResponseMessage(CommandResponse response, String exceptionMessage);
+    void sendResponseMessage(@NotNull  CommandProcessOutput commandProcessOutput,
+                             @NotNull  CommandDefinition nullable,
+                             @NotNull  CommandSender sender,
+                             @Nullable String exceptionMessage,
+                             @Nullable List<ArgumentMistakeType> mistakeTypes);
 
-    String getUsageMessage(CommandDefinition commandDefinition, List<ArgumentMistakeType> argumentMistakeTypes);
+    default void sendResponseMessage(@NotNull  CommandProcessOutput commandProcessOutput,
+                                     @NotNull  CommandDefinition nullable,
+                                     @NotNull  CommandSender sender) {
+        sendResponseMessage(commandProcessOutput, nullable, sender, null, null);
+    }
+
+    default void sendResponseMessage(@NotNull  CommandProcessOutput commandProcessOutput,
+                                     @NotNull  CommandDefinition nullable,
+                                     @NotNull  CommandSender sender,
+                                     @Nullable String exceptionMessage) {
+        sendResponseMessage(commandProcessOutput, nullable, sender, exceptionMessage, null);
+    }
+
+    default void sendResponseMessage(@NotNull  CommandProcessOutput commandProcessOutput,
+                                     @NotNull  CommandDefinition nullable,
+                                     @NotNull  CommandSender sender,
+                                     @Nullable List<ArgumentMistakeType> mistakeTypes) {
+        sendResponseMessage(commandProcessOutput, nullable, sender, null, mistakeTypes);
+    }
+
+    String getUsageMessage(@NotNull CommandDefinition commandDefinition,
+                           @Nullable List<ArgumentMistakeType> argumentMistakeTypes);
+
+    default String getUsageMessage(@NotNull CommandDefinition commandDefinition) {
+        return getUsageMessage(commandDefinition, null);
+    }
 
 }

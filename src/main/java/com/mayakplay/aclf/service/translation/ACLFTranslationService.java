@@ -5,6 +5,7 @@ import com.mayakplay.aclf.definition.TranslationContainer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.util.*;
@@ -42,9 +43,11 @@ public class ACLFTranslationService implements TranslationService {
     }
 
     private void loadLanguageFiles(@NotNull Plugin plugin) throws Exception {
-        @SuppressWarnings({"NonAsciiCharacters", "ConstantConditions"})
-        File тыМнеТакПомогДруг = new File(plugin.getClass().getClassLoader().getResource("plugin.yml").getFile());
-        String parent = тыМнеТакПомогДруг.getParent();
+        ClassLoader classLoader = plugin.getClass().getClassLoader();
+
+        @SuppressWarnings("ConstantConditions")
+        File pluginResourceFile = new File(classLoader.getResource("plugin.yml").getFile());
+        String parent = pluginResourceFile.getParent();
         File file = new File(parent.substring(6, parent.length() - 1));
 
         JarFile jarFile = new JarFile(file);
@@ -56,73 +59,20 @@ public class ACLFTranslationService implements TranslationService {
 
         for (JarEntry entry : collect) {
             System.out.println(entry);
+
+            Yaml yaml = new Yaml();
+            Map<String, String> load = yaml.load(classLoader.getResourceAsStream(entry.getName()));
+
+            for (Map.Entry<String, String> loadEntry : load.entrySet()) {
+                System.out.println(" - " + loadEntry.getKey() + ":" + loadEntry.getValue());
+            }
         }
 
-//        for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
-//            JarEntry jarEntry = entries.nextElement();
-//
-//
-//            System.out.println(jarEntry.getName());
-//        }
-
-
-//        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
-//
-//        for (Resource resource : resolver.getResources("/language/")) {
-//            System.out.println(resource.getFilename());
-//        }
-
-        //--------------
-
-//        try (InputStream inputStream = plugin.getResource("language/en.lang")) {
-//
-//            assert inputStream != null;
-//
-//            final InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-//
-//            final BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-//
-//            String line;
-//            while ((line = bufferedReader.readLine()) != null) {
-//                System.out.println(line);
-//            }
-//        } catch (Exception exception) {
-//            exception.printStackTrace();
-//        }
-
-
-//        String filename = "language";
-//
-//        try {
-//            URL url = plugin.getClass().getClassLoader().getResource(filename);
-//
-//            if (url == null) {
-//                System.out.println("hueta, a ne fael");
-//            }
-//
-//            URLConnection connection = url.openConnection();
-//            connection.setUseCaches(false);
-//
-//            File file = new File(connection.getURL().toURI());
-//            System.out.println(file.exists());
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-
-
-//        File file = new File(Objects.requireNonNull(classLoader.getResources("\\")).getFile());
-//
-//        System.out.println(file.isDirectory());
-//
-//        FilenameFilter filenameFilter = (dir, name) -> name.endsWith(".lang");
-//
-//        System.out.println(file.exists());
-//        System.out.println(file.getAbsolutePath());
     }
 
     @Override
     public String getTranslated(Plugin plugin, String key, Locale locale) {
-        return "::" + plugin.getName() + "::";
+        return key;
     }
 
     @Override

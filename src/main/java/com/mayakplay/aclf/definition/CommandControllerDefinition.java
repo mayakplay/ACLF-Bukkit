@@ -1,6 +1,7 @@
 package com.mayakplay.aclf.definition;
 
 import com.google.common.collect.ImmutableList;
+import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.annotation.OpsOnly;
 import com.mayakplay.aclf.annotation.Permitted;
@@ -9,6 +10,7 @@ import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.AnnotatedElementUtils;
@@ -31,6 +33,9 @@ import java.util.List;
 @EqualsAndHashCode(of = "controllerName")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommandControllerDefinition {
+
+    @Getter
+    private final Plugin plugin;
 
     @Nullable
     private final String controllerName;
@@ -72,7 +77,9 @@ public class CommandControllerDefinition {
         if (mappingAccess.equals(MappingAccess.CHANNEL)) flags.add(DefinitionFlag.CHANNEL_ONLY);
         //endregion
 
-        CommandControllerDefinition commandControllerDefinition = new CommandControllerDefinition(commandName, flags, controllerClass, controllerBeanName, mappingAccess, permissionsList);
+        final Plugin pluginByClass = ACLF.getPluginByClass(controllerClass);
+
+        CommandControllerDefinition commandControllerDefinition = new CommandControllerDefinition(pluginByClass, commandName, flags, controllerClass, controllerBeanName, mappingAccess, permissionsList);
 
         for (Method method : controllerClass.getDeclaredMethods()) {
             CommandDefinition of = CommandDefinition.of(method, commandControllerDefinition, commandContainerService);
