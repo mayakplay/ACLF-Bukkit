@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.service.command;
 
+import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.Documented;
 import com.mayakplay.aclf.definition.ArgumentDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
@@ -8,13 +9,20 @@ import com.mayakplay.aclf.service.translation.TranslationService;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import com.mayakplay.aclf.util.StaticUtils;
+import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -26,9 +34,29 @@ import java.util.stream.Collectors;
  * @since 27.06.2019.
  */
 @Service
+@AllArgsConstructor
 public class ACLFCommandMessagingService implements CommandMessagingService {
 
-    private TranslationService translationService;
+    private final TranslationService translationService;
+
+    @SneakyThrows
+    private String getLanguage(@NotNull Player p){
+        Method getHandle = getGetHandleMethod(p.getClass());
+        if (getHandle == null) return ACLF.getServerLocale().getLanguage();
+
+        Object ep = getHandle.invoke(p, (Object[]) null);
+        Field f = ep.getClass().getDeclaredField("locale");
+        f.setAccessible(true);
+        return (String) f.get(ep);
+    }
+
+    private Method getGetHandleMethod(Class<?> clazz) {
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.getName().equals("getHandle"))
+                return m;
+        }
+        return null;
+    }
 
     @Override
     public void sendResponseMessage(@NotNull CommandProcessOutput commandProcessOutput,
@@ -37,27 +65,36 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
                                     @Nullable String exceptionMessage,
                                     @Nullable List<ArgumentMistakeType> mistakeTypes) {
         CommandDescriptionDefinition description = commandDefinition.getCommandDescriptionScanner();
+
+        Locale locale = ACLF.getServerLocale();
+        if (sender instanceof Player) {
+            locale = LocaleUtils.toLocale(getLanguage((Player) sender));
+            System.out.println("Player locale is " + locale.getDisplayName(locale));
+        }
+
+        Plugin plugin = commandDefinition.getPlugin();
+
         switch (commandProcessOutput) {
             case NO_PERMISSIONS:
-                send(sender, description.getNoPermissionsMessage());
+                send(sender, translationService.getTranslated(plugin, description.getNoPermissionsMessage(), locale));
                 break;
             case OPS_ONLY:
-                send(sender, description.getOpsOnlyMessage());
+                send(sender, translationService.getTranslated(plugin, description.getOpsOnlyMessage(), locale));
                 break;
             case PLAYERS_ONLY:
-                send(sender, description.getPlayersOnlyMessage());
+                send(sender, translationService.getTranslated(plugin, description.getPlayersOnlyMessage(), locale));
                 break;
             case CONSOLE_ONLY:
-                send(sender, description.getConsoleOnlyMessage());
+                send(sender, translationService.getTranslated(plugin, description.getConsoleOnlyMessage(), locale));
                 break;
             case CHAT_ONLY:
-                send(sender, description.getChatOnlyMessage());
+                send(sender, translationService.getTranslated(plugin, description.getChatOnlyMessage(), locale));
                 break;
             case CHANNEL_ONLY:
-                send(sender, description.getChannelOnlyMessage());
+                send(sender, translationService.getTranslated(plugin, description.getChannelOnlyMessage(), locale));
                 break;
             case INVALID_ARGUMENTS:
-                send(sender, getUsageMessage(commandDefinition, mistakeTypes));
+                send(sender, getUsageMessage(commandDefinition, mistakeTypes, plugin, locale));
                 break;
             case EXCEPTION:
                 if (exceptionMessage != null)
@@ -72,9 +109,9 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
     }
 
     @Override
-    public String getUsageMessage(@NotNull CommandDefinition commandDefinition, @Nullable List<ArgumentMistakeType> argumentMistakeTypes) {
+    public String getUsageMessage(@NotNull CommandDefinition commandDefinition, @Nullable List<ArgumentMistakeType> argumentMistakeTypes, @NotNull Plugin plugin, @NotNull Locale locale) {
         String translationKey = commandDefinition.getCommandDescriptionScanner().getUsageMessage();
-        String translated = translationService.getTranslated(commandDefinition.getPlugin(), translationKey, Locale.ENGLISH);
+        String translated = translationService.getTranslated(plugin, translationKey, locale);
 
         return StringUtils.replaceEach(translated,
                         new String[]{Documented.COMMAND_NAME, Documented.ARGUMENTS_USAGE_PARAM},

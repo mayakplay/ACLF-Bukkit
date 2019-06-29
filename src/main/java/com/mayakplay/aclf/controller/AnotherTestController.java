@@ -1,8 +1,6 @@
 package com.mayakplay.aclf.controller;
 
-import com.mayakplay.aclf.annotation.ChatMapping;
-import com.mayakplay.aclf.annotation.CommandController;
-import com.mayakplay.aclf.annotation.CommandMapping;
+import com.mayakplay.aclf.annotation.*;
 import com.mayakplay.aclf.definition.response.CommandResponse;
 
 /**
@@ -15,8 +13,15 @@ import com.mayakplay.aclf.definition.response.CommandResponse;
 public class AnotherTestController {
 
     @ChatMapping("test")
+    @Permitted("test")
     public void something(CommandResponse response, String string, String test) {
         System.out.println(string + " : " + test);
+    }
+
+    @ChatMapping("o")
+    @OpsOnly
+    public void something1() {
+        System.out.println("OPA4KI");
     }
 
 }

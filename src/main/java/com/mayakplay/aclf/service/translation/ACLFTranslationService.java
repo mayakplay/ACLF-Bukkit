@@ -1,7 +1,8 @@
 package com.mayakplay.aclf.service.translation;
 
 import com.mayakplay.aclf.ACLF;
-import com.mayakplay.aclf.definition.TranslationContainer;
+import com.mayakplay.aclf.definition.AddonTranslationContainer;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ public class ACLFTranslationService implements TranslationService {
 
     private final String LANG_FOLDER_NAME = "language";
 
-    private final HashMap<Plugin, TranslationContainer> translationContainerMap = new HashMap<>();
+    @NotNull private AddonTranslationContainer defaultContainer;
+    private final HashMap<Plugin, AddonTranslationContainer> translationContainerMap = new HashMap<>();
 
     public ACLFTranslationService() {
         final LinkedList<Plugin> plugins = new LinkedList<>(ACLF.getDependentPlugins());
@@ -57,32 +59,50 @@ public class ACLFTranslationService implements TranslationService {
                         jarEntry.getName().startsWith(LANG_FOLDER_NAME) && jarEntry.getName().endsWith(".lang"))
                 .collect(Collectors.toList());
 
+        final HashMap<String, HashMap<String, String>> map = new HashMap<>();
         for (JarEntry entry : collect) {
-            System.out.println(entry);
+            String jarFilePath = entry.getName();
 
             Yaml yaml = new Yaml();
-            Map<String, String> load = yaml.load(classLoader.getResourceAsStream(entry.getName()));
+            HashMap<String, String> load = yaml.load(classLoader.getResourceAsStream(jarFilePath));
 
-            for (Map.Entry<String, String> loadEntry : load.entrySet()) {
-                System.out.println(" - " + loadEntry.getKey() + ":" + loadEntry.getValue());
-            }
+            String fileName = getFileName(jarFilePath);
+
+            map.put(fileName, load);
         }
 
+        AddonTranslationContainer addonTranslationContainer = AddonTranslationContainer.of(plugin, map);
+        translationContainerMap.put(plugin, addonTranslationContainer);
+
+        if (plugin.equals(ACLF.getACLF())) defaultContainer = addonTranslationContainer;
     }
 
+    private String getFileName(String resourcePath) {
+        int indexOfSlash = StringUtils.lastIndexOf(resourcePath, '/');
+
+        return resourcePath.substring(indexOfSlash + 1, resourcePath.length() - 5);
+    }
+
+    @NotNull
     @Override
     public String getTranslated(Plugin plugin, String key, Locale locale) {
-        return key;
-    }
+        AddonTranslationContainer addonTranslationContainer = translationContainerMap.get(plugin);
+        if (addonTranslationContainer == null) return key;
 
-    @Override
-    public Map<Plugin, Map<String, String>> getTranslationInfoMap() {
-        return null;
+        String translation = addonTranslationContainer.getTranslation(key, locale.getLanguage());
+
+        if (translation != null) {
+            return translation;
+        }
+
+        String defaultTranslation = defaultContainer.getTranslation(key, locale.getLanguage());
+
+        return defaultTranslation != null ? defaultTranslation : key;
     }
 
     @Override
     public void reload() {
-
+        System.out.println("Could not reload");
     }
 
 }

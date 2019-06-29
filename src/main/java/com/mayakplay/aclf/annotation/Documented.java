@@ -32,13 +32,13 @@ public @interface Documented {
     String ARGUMENTS_USAGE_PARAM = "{ARGUMENTS}";
     String COMMAND_NAME =          "{NAME}";
 
-    String DEFAULT_PLAYERS_ONLY_MESSAGE =   "command.default.players.only";
-    String DEFAULT_CONSOLE_ONLY_MESSAGE =   "command.default.console.only";
-    String DEFAULT_NO_PERMISSIONS_MESSAGE = "command.default.no.permissions";
-    String DEFAULT_OPS_ONLY_MESSAGE =       "command.default.ops.only";
-    String DEFAULT_USAGE_MESSAGE =          "command.default.usage";
-    String DEFAULT_CHAT_ONLY_MESSAGE =      "command.default.chat.only";
-    String DEFAULT_CHANNEL_ONLY_MESSAGE =   "command.default.channel.only";
+    String DEFAULT_PLAYERS_ONLY_MESSAGE =   "command.mistake.playeronly";
+    String DEFAULT_CONSOLE_ONLY_MESSAGE =   "command.mistake.consoleonly";
+    String DEFAULT_NO_PERMISSIONS_MESSAGE = "command.mistake.permissions";
+    String DEFAULT_OPS_ONLY_MESSAGE =       "command.mistake.opsonly";
+    String DEFAULT_USAGE_MESSAGE =          "command.mistake.usage";
+    String DEFAULT_CHAT_ONLY_MESSAGE =      "command.mistake.chatonly";
+    String DEFAULT_CHANNEL_ONLY_MESSAGE =   "command.mistake.channelonly";
 
     boolean displayInHelp() default false;
 

@@ -4,10 +4,12 @@ import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.type.ArgumentMistakeType;
 import com.mayakplay.aclf.type.CommandProcessOutput;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author mayakplay
@@ -43,10 +45,12 @@ public interface CommandMessagingService {
     }
 
     String getUsageMessage(@NotNull CommandDefinition commandDefinition,
-                           @Nullable List<ArgumentMistakeType> argumentMistakeTypes);
+                           @Nullable List<ArgumentMistakeType> argumentMistakeTypes,
+                           @NotNull Plugin plugin,
+                           @NotNull Locale locale);
 
-    default String getUsageMessage(@NotNull CommandDefinition commandDefinition) {
-        return getUsageMessage(commandDefinition, null);
+    default String getUsageMessage(@NotNull CommandDefinition commandDefinition, @NotNull Plugin plugin, @NotNull Locale locale) {
+        return getUsageMessage(commandDefinition, null, plugin, locale);
     }
 
 }
