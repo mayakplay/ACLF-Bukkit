@@ -12,19 +12,7 @@
 
 ## Controllers usage
 
-↓ This thing creates a new command `/test test` with two String args
-
-```java
-@CommandController
-@CommandMapping("test")
-public class TestController {
-
-    @ChatMapping("test")
-    public void test(CommandResponse response, String string, String string1) {
-        System.out.println(string + " : " + string1);
-    }
-}
-```
+This thing creates a new command `/test test` with two String args
 
 ```java
 @CommandController
