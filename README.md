@@ -3,6 +3,7 @@
 | ------------ | ------------ |
 |Registration of Spring Addon Configurations|`complete`|
 |Command sender scoped beans|`complete`|
+|Translation|`complete`|
 |Translation injection|`in progress`|
 |Global ACLF configuration|`planning`|
 |Configurable addons configurations|`planning`|
