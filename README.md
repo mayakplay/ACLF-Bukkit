@@ -38,7 +38,7 @@ public class TestController {
 }
 ```
 
-#### You can set command access levels and change standard messages.
+You can set command access levels and change standard messages.
 
 ```java
 @CommandController
