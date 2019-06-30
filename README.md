@@ -47,9 +47,9 @@ public class TestController {
 
     @Documented(
         opsOnlyMessage = "You cant use this command, idiot",
-		noPermissionsMessage = "NOT FOR YOU! AHAHAHA")
+	noPermissionsMessage = "NOT FOR YOU! AHAHAHA")
     @OpsOnly
-	@Permitted("permission.name")
+    @Permitted("permission.name")
     @ChannelMapping("channel")
     public void opsOnlyCommand() {
         System.out.println("OP player is here");
