@@ -6,7 +6,6 @@ import org.bukkit.plugin.Plugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author mayakplay
@@ -15,9 +14,6 @@ import java.util.Locale;
  */
 public final class AddonDefinition {
 
-    private boolean isCompleted = false;
-
-    private Locale currentLocale;
     private ClassLoader classLoader;
 
     @Getter

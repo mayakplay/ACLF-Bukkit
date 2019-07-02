@@ -50,7 +50,7 @@ public class ACLFTranslationService implements TranslationService {
         @SuppressWarnings("ConstantConditions")
         File pluginResourceFile = new File(classLoader.getResource("plugin.yml").getFile());
         String parent = pluginResourceFile.getParent();
-        File file = new File(parent.substring(6, parent.length() - 1));
+        File file = new File(parent.substring(6, parent.length() - 1).replace("%20", " "));
 
         JarFile jarFile = new JarFile(file);
 

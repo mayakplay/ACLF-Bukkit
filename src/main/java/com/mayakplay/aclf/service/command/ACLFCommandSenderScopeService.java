@@ -40,7 +40,6 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
         final String senderName = getSpecifySenderName(consoleCommandSender);
         final SenderScopeContext senderContext = createSenderContext(consoleCommandSender);
 
-
         sendersMap.put(senderName, senderContext);
         //endregion
     }
@@ -54,7 +53,6 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
     //endregion
 
     //region Event
-
     @EventHandler
     private void handleJoinEvent(PlayerJoinEvent event) {
         final Player playerSender = event.getPlayer();
@@ -63,6 +61,7 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
         SenderScopeContext senderScopeContext = sendersMap.computeIfAbsent(senderName, s -> createSenderContext(playerSender));
         senderScopeContext.stopRemoveTimer();
     }
+
     @EventHandler
     private void handleLeaveEvent(PlayerQuitEvent event) {
         final Player playerSender = event.getPlayer();
@@ -71,7 +70,6 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
         SenderScopeContext playerSenderScopeContext = sendersMap.get(getSpecifySenderName(playerSender));
         playerSenderScopeContext.startContextRemoveTimer(THREAD_REMOVE_TIME_TICKS, () -> sendersMap.remove(senderName));
     }
-
     //endregion
 
     //region Util

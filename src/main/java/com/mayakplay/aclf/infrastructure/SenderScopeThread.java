@@ -17,8 +17,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class SenderScopeThread extends Thread {
 
-    private final LinkedBlockingQueue<SenderScopeRunnable> tasksQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<SenderScopeRunnable> asyncTaskQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<SenderScopeCallback> callbackTaskQueue = new LinkedBlockingQueue<>();
+
     private CommandSender commandSender;
+
+    private Object outputObject = null;
 
     public SenderScopeThread(@NotNull String name, CommandSender commandSender) {
         super(name);
@@ -29,9 +33,13 @@ public final class SenderScopeThread extends Thread {
     @SuppressWarnings("InfiniteLoopStatement")
     public void run() {
         while (true) {
-            if (tasksQueue.peek() != null) {
-                SenderScopeRunnable task = tasksQueue.poll();
+            if (callbackTaskQueue.peek() != null) {
+                SenderScopeCallback task = callbackTaskQueue.poll();
+                outputObject = task.run();
+            }
 
+            if (asyncTaskQueue.peek() != null) {
+                SenderScopeRunnable task = asyncTaskQueue.poll();
                 try {
                     task.run();
                 } catch (Throwable throwable) {
@@ -62,11 +70,22 @@ public final class SenderScopeThread extends Thread {
         }
     }
 
+    @SneakyThrows
+    public Object handleCallback(SenderScopeCallback runnable) {
+        callbackTaskQueue.add(runnable);
 
+        while (outputObject == null) {
+            Thread.sleep(1);
+        }
 
-    public void handleCallback(SenderScopeRunnable runnable) {
-        synchronized (tasksQueue) {
-            tasksQueue.add(runnable);
+        Object object = outputObject;
+        outputObject = null;
+        return object;
+    }
+
+    public void handleRunnable(SenderScopeRunnable runnable) {
+        synchronized (asyncTaskQueue) {
+            asyncTaskQueue.add(runnable);
         }
     }
 

@@ -71,9 +71,9 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
         } catch (Throwable throwable) {
             String deepACLFException = SenderScopeThread.getDeepACLFException(throwable);
 
-            messagingService.sendResponseMessage(CommandProcessOutput.EXCEPTION, definition, sender, message);
+            if (deepACLFException != null) message = deepACLFException;
 
-//            sender.sendMessage(ChatColor.RED + deepACLFException);
+            messagingService.sendResponseMessage(CommandProcessOutput.EXCEPTION, definition, sender, message);
 
             return CommandProcessOutput.EXCEPTION;
         }
@@ -82,7 +82,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     /**
      * existence checking -> access checking -> arguments checking -> OK
      */
-    private CommandProcessOutput includedCommandProcessing(String message, CommandSender sender, SenderType senderType, CommandDefinition definition) {
+    private CommandProcessOutput includedCommandProcessing(String message, CommandSender sender, SenderType senderType, CommandDefinition definition) throws Exception {
         val afterAccessCheckingOutputType = checkAccess(definition, sender, senderType);
 
         if (!afterAccessCheckingOutputType.equals(CommandProcessOutput.OK))
@@ -101,27 +101,42 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
         //endregion
 
+//        invokeAsync(definition, sender, argumentsObjectsList);
 
         invoke(definition, sender, argumentsObjectsList);
+
+
         return CommandProcessOutput.OK;
 
     }
 
-    private void invoke(CommandDefinition definition, CommandSender sender, List<Object> argumentsObjectsList) {
+    @SuppressWarnings("Duplicates")
+    private void invoke(CommandDefinition definition, CommandSender sender, List<Object> argumentsObjectsList) throws Exception {
+
+        SenderScopeContext scopeContext = senderScopeService.getContextFor(sender);
+
+        if (scopeContext == null) return;
+
+
+        //endregion
+
+        Object bean = scopeContext.getSenderScopeThread()
+                .handleCallback(() -> addonDefinition(definition).getContext().getBean(definition.getControllerClass()));
+
+        definition.getCommandMethod().invoke(bean, argumentsObjectsList.toArray());
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void invokeAsync(CommandDefinition definition, CommandSender sender, List<Object> argumentsObjectsList) {
 
         SenderScopeContext scopeContext = senderScopeService.getContextFor(sender);
 
         if (scopeContext == null) return;
 
         SenderScopeRunnable runnable = () -> {
-            assert ACLF.getAddonDefinitionScanner() != null;
-            AddonDefinition definitionByPlugin = ACLF.getAddonDefinitionScanner().getDefinitionByPlugin(definition.getPlugin());
+            //endregion
 
-            if (definitionByPlugin == null) {
-                throw new ACLFCriticalException("NOTE ME ABOUT THIS EXCEPTION! https://github.com/mayakplay");
-            }
-
-            Object bean = definitionByPlugin
+            Object bean = addonDefinition(definition)
                     .getContext()
                     .getBean(
                             definition
@@ -129,14 +144,22 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
                     );
 
             definition.getCommandMethod().invoke(bean, argumentsObjectsList.toArray());
-
         };
 
-        scopeContext.getSenderScopeThread().handleCallback(runnable);
-
-
+        scopeContext.getSenderScopeThread().handleRunnable(runnable);
     }
 
+    private AddonDefinition addonDefinition(CommandDefinition definition) {
+        assert ACLF.getAddonDefinitionScanner() != null;
+        AddonDefinition definitionByPlugin = ACLF.getAddonDefinitionScanner().getDefinitionByPlugin(definition.getPlugin());
+
+        //region Exception
+        if (definitionByPlugin == null) {
+            throw new ACLFCriticalException("NOTE ME ABOUT THIS EXCEPTION! https://github.com/mayakplay");
+        }
+
+        return definitionByPlugin;
+    }
 
     //    region Arguments processing
     @Nullable
@@ -283,7 +306,6 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     }
 
     //region Event handling
-
     /**
      * Calls {@link #handle} method and cancels {@link PlayerCommandPreprocessEvent}
      * if the entered command exists

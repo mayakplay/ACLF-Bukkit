@@ -26,7 +26,7 @@ public final class ACLF extends JavaPlugin {
     private static final Locale serverLocale = Locale.US;
 
     @NotNull
-    public static ACLF getACLF() {
+    public synchronized static ACLF getACLF() {
         return JavaPlugin.getPlugin(ACLF.class);
     }
 

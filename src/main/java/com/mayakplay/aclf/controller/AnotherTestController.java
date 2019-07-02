@@ -1,5 +1,6 @@
 package com.mayakplay.aclf.controller;
 
+import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.ChatMapping;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.annotation.CommandMapping;
@@ -28,10 +29,15 @@ public class AnotherTestController {
 
     @ChatMapping("o")
     @OpsOnly
-    public void something1() {
-        System.out.println("OPA4KI");
+    public void something1() throws InterruptedException {
+        synchronized (ACLF.getACLF()) {
+            System.out.println(Thread.currentThread());
+            System.out.println("OPA4KI");
 
-        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "1234");
+
+
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "1234");
+        }
     }
 
     // /test test
