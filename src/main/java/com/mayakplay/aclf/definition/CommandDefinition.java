@@ -3,10 +3,7 @@ package com.mayakplay.aclf.definition;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.mayakplay.aclf.annotation.CommandMapping;
-import com.mayakplay.aclf.annotation.OpsOnly;
-import com.mayakplay.aclf.annotation.Permitted;
-import com.mayakplay.aclf.annotation.TailArgumentCommand;
+import com.mayakplay.aclf.annotation.*;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
@@ -73,6 +70,7 @@ public class CommandDefinition {
         final Permitted permitted                     = AnnotatedElementUtils.getMergedAnnotation(commandMethod, Permitted.class);
         final OpsOnly opsOnly                         = AnnotatedElementUtils.getMergedAnnotation(commandMethod, OpsOnly.class);
         final TailArgumentCommand tailArgumentCommand = AnnotatedElementUtils.getMergedAnnotation(commandMethod, TailArgumentCommand.class);
+        final AsyncCommand mergedAnnotation = AnnotatedElementUtils.getMergedAnnotation(commandMethod, AsyncCommand.class);
 
         //command definition fields measure
         final String commandName            = commandMapping.value();
@@ -88,6 +86,7 @@ public class CommandDefinition {
         if (tailArgumentCommand != null)                 flags.add(DefinitionFlag.TAIL_ARG);
         if (mappingAccess.equals(MappingAccess.CHAT))    flags.add(DefinitionFlag.CHAT_ONLY);
         if (mappingAccess.equals(MappingAccess.CHANNEL)) flags.add(DefinitionFlag.CHANNEL_ONLY);
+        if (mergedAnnotation != null)                    flags.add(DefinitionFlag.ASYNC);
 
         //adding permissions from method
         if (permitted != null) permissionsSet.addAll(Arrays.asList(permitted.value()));
@@ -165,6 +164,10 @@ public class CommandDefinition {
     @NotNull
     public Class<?> getControllerClass() {
         return commandControllerDefinition.getControllerClass();
+    }
+
+    public boolean isAsync() {
+        return getFlagsSet().contains(DefinitionFlag.ASYNC);
     }
 
     public boolean isForChatOnly() {

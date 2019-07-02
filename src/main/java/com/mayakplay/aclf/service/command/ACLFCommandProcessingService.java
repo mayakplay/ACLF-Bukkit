@@ -101,10 +101,11 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
 
         //endregion
 
-//        invokeAsync(definition, sender, argumentsObjectsList);
-
-        invoke(definition, sender, argumentsObjectsList);
-
+        if (definition.isAsync()) {
+            invokeAsync(definition, sender, argumentsObjectsList);
+        } else {
+            invoke(definition, sender, argumentsObjectsList);
+        }
 
         return CommandProcessOutput.OK;
 
