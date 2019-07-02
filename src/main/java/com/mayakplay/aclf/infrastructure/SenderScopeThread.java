@@ -71,7 +71,7 @@ public final class SenderScopeThread extends Thread {
     }
 
     @SneakyThrows
-    public Object handleCallback(SenderScopeCallback runnable) {
+    public synchronized Object handleCallback(SenderScopeCallback runnable) {
         callbackTaskQueue.add(runnable);
 
         while (outputObject == null) {

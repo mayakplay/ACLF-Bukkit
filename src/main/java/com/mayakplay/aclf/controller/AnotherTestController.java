@@ -1,11 +1,7 @@
 package com.mayakplay.aclf.controller;
 
-import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.annotation.*;
 import com.mayakplay.aclf.definition.response.CommandResponse;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 /**
  * @author mayakplay
@@ -16,28 +12,18 @@ import org.bukkit.entity.Player;
 @CommandMapping("test")
 public class AnotherTestController {
 
-    @ChatMapping("test")
+    @AsyncCommand
+    @CommandMapping("a")
     public void something(CommandResponse response) {
-        if (response.getSender() instanceof Player) {
-            Player player = (Player) response.getSender();
 
-        }
+        System.out.println(Thread.currentThread());
+
     }
 
-    @ChatMapping("o")
-    @OpsOnly
+    @CommandMapping("o")
     public void something1() throws InterruptedException {
-        synchronized (ACLF.getACLF()) {
-            System.out.println(Thread.currentThread());
-            System.out.println("OPA4KI");
 
+        System.out.println(Thread.currentThread());
 
-
-            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "1234");
-        }
     }
-
-    // /test test
-    // /test o
-
 }
