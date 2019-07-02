@@ -19,11 +19,13 @@ public class TestController {
         System.out.println(++counter + "st/nd/rd (I dont give a fk) controller created");
     }
 
+
     @ChatMapping("test")
     public void something(CommandResponse response, String string, String test) {
         System.out.println(string + " : " + test);
     }
 
+    @Documented(noPermissionsMessage = "NOT FOR YOU! AHAHAHA")
     @CommandDescription("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
             " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation" +
             " ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit" +

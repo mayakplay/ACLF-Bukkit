@@ -38,7 +38,6 @@ public final class ACLF extends JavaPlugin {
             }
         }
         return null;
-
     }
 
     @Nullable
@@ -63,7 +62,12 @@ public final class ACLF extends JavaPlugin {
                 .count();
 
         //Start message printing
-        printGreetingMessage(getDescription().getVersion(), candidatesCount, serverLocale.getLanguage(), getServer().getName());
+        printGreetingMessage(
+                getDescription().getVersion(),
+                candidatesCount,
+                serverLocale.getLanguage(),
+                getServer().getName()
+        );
 
         //Register addons scanner
         addonDefinitionContainer = new AddonDefinitionScanner();

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by Mayakplay on 10.05.2019.
  */
-public class ConsoleCommandResponse extends CommandResponse {
+public final class ConsoleCommandResponse extends CommandResponse {
 
     public ConsoleCommandResponse(@NotNull ConsoleCommandSender sender, @NotNull String fullCommandName, @NotNull String argsMessage) {
         super(sender, fullCommandName, argsMessage);

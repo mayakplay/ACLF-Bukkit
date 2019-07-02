@@ -35,11 +35,14 @@ public class ACLFCommandSenderScopeService implements Listener, CommandSenderSco
 
     @Override
     public void onApplicationEvent(@NotNull ControllersClassesScanFinishedEvent event) {
+        //region Creating scope context for console sender
         final ConsoleCommandSender consoleCommandSender = Bukkit.getConsoleSender();
         final String senderName = getSpecifySenderName(consoleCommandSender);
         final SenderScopeContext senderContext = createSenderContext(consoleCommandSender);
 
+
         sendersMap.put(senderName, senderContext);
+        //endregion
     }
 
     @Nullable

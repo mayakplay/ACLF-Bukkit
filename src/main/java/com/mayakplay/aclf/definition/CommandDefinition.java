@@ -101,6 +101,9 @@ public class CommandDefinition {
         List<ArgumentDefinition> list = ArgumentDefinition.of(commandDefinition, commandContainerService);
 
         commandDefinition.argumentDefinitions.addAll(list);
+
+        System.out.println(commandDefinition.getCommandName() + " registered ------------------");
+
         return commandDefinition;
     }
 

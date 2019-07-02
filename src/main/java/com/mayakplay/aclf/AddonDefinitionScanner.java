@@ -51,6 +51,10 @@ public class AddonDefinitionScanner {
         pluginHashMap =          ImmutableMap.copyOf(scanForClassLoaders());
         addonDefinitionHashMap = ImmutableMap.copyOf(getAddonDefinitionMap());
 
+        for (Map.Entry<ClassLoader, AddonDefinition> entry : addonDefinitionHashMap.entrySet()) {
+            System.out.println(entry.getKey() + ":" + entry.getValue().getPlugin().getName());
+        }
+
         //region WARNs If dependent plugin does not contains configuration
         for (Map.Entry<ClassLoader, Plugin> entry : pluginHashMap.entrySet()) {
             if (!addonDefinitionHashMap.containsKey(entry.getKey())) {
@@ -93,7 +97,7 @@ public class AddonDefinitionScanner {
             ClassLoader addonClassLoader = entry.getKey();
 
             AnnotationConfigApplicationContext addonContext = new AnnotationConfigApplicationContext();
-
+            addonDefinition.setContext(addonContext);
             //region Description
             for (Object processor : getInfrastructureProcessorsList(mainContext)) {
                 if (processor instanceof BeanFactoryPostProcessor) {
@@ -113,7 +117,7 @@ public class AddonDefinitionScanner {
             addonContext.setParent(mainContext);
 //            addonContext.refresh();
 
-            addonDefinition.setContext(addonContext);
+
 
             refreshContext(addonDefinition);
         }
@@ -127,11 +131,17 @@ public class AddonDefinitionScanner {
         //Searching for infrastructure BPPs
         Map<String, Object> beansWithAnnotation = mainContext.getBeansWithAnnotation(InfrastructurePostProcessor.class);
 
+        //Loop adding main BFPPs to child contexts
+        beansWithAnnotation.values().stream()
+                .filter(bean -> bean instanceof BeanFactoryPostProcessor)
+                .map(bean -> (BeanFactoryPostProcessor) bean)
+                .forEach(context::addBeanFactoryPostProcessor);
+
         //Loop adding main BPPs to child contexts
         beansWithAnnotation.values().stream()
                 .filter(bean -> bean instanceof BeanPostProcessor)
-                .map(bean -> (BeanFactoryPostProcessor) bean)
-                .forEach(context::addBeanFactoryPostProcessor);
+                .map(bean -> (BeanPostProcessor) bean)
+                .forEach(context.getBeanFactory()::addBeanPostProcessor);
 
         //Finalize. Refreshing the context
         context.refresh();
@@ -207,6 +217,25 @@ public class AddonDefinitionScanner {
         }
 
         return configurationClasses;
+    }
+
+    private static AddonDefinition mainDef = new AddonDefinition(ACLF.class.getClassLoader(), ACLF.getACLF(), null);
+
+    private AddonDefinition getMainDef() {
+        mainDef.setContext(mainContext);
+        return mainDef;
+    }
+
+    @Nullable
+    public AddonDefinition getDefinitionByPlugin(@NotNull Plugin plugin) {
+        if (plugin.getName().equals(ACLF.getACLF().getName())) {
+            return getMainDef();
+        }
+
+        Objects.requireNonNull(plugin);
+        ClassLoader classLoader = plugin.getClass().getClassLoader();
+
+        return addonDefinitionHashMap.get(classLoader);
     }
 
     @Nullable

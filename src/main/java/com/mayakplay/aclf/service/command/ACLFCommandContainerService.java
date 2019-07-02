@@ -1,6 +1,7 @@
 package com.mayakplay.aclf.service.command;
 
 import com.google.common.collect.ImmutableList;
+import com.mayakplay.aclf.ACLF;
 import com.mayakplay.aclf.definition.CommandControllerDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.event.ControllersClassesScanFinishedEvent;
@@ -30,6 +31,8 @@ public class ACLFCommandContainerService implements CommandContainerService, App
 
     private static final String COMMAND_NAME_REGEX = "(?:[a-z]+)|";
 
+    public static final String EMPTY_COMMAND_NAME = "qwertyuiopasdfghjklzxcvbnm";
+
     //region Construction
     /**
      * &lt;Full command name, Command definition&gt;
@@ -50,6 +53,8 @@ public class ACLFCommandContainerService implements CommandContainerService, App
      */
     @Autowired
     public ACLFCommandContainerService(List<ArgumentProcessor> argumentProcessorList, GSONArgumentProcessor defaultProcessor) {
+        StaticUtils.registerCommand(EMPTY_COMMAND_NAME);
+
         for (ArgumentProcessor processor : argumentProcessorList) {
             System.out.println(processor.getClass().getName());
         }
@@ -58,6 +63,9 @@ public class ACLFCommandContainerService implements CommandContainerService, App
         for (ArgumentProcessor processor : argumentProcessorList) {
             argumentProcessorHashMap.put(processor.getClass(), processor);
         }
+
+        //TODO: remove
+        Bukkit.getMessenger().registerOutgoingPluginChannel(ACLF.getACLF(), "ACLF_COMMANDS");
     }
     //endregion
 
@@ -121,6 +129,10 @@ public class ACLFCommandContainerService implements CommandContainerService, App
                     Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "  " + s);
                 }
             }
+        }
+
+        for (String s : commandDefinitionAssociationsMap.keySet()) {
+            System.out.println(s + "=======================");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.mayakplay.aclf;
 
 import com.google.common.base.Objects;
+import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -18,7 +19,11 @@ public final class AddonDefinition {
 
     private Locale currentLocale;
     private ClassLoader classLoader;
+
+    @Getter
     private Plugin plugin;
+
+    @Getter
     private Class<?> configurationClass;
     private AnnotationConfigApplicationContext context;
 
@@ -37,14 +42,6 @@ public final class AddonDefinition {
 
     public AnnotationConfigApplicationContext getContext() {
         return context;
-    }
-
-    public Plugin getPlugin() {
-        return plugin;
-    }
-
-    public Class<?> getConfigurationClass() {
-        return configurationClass;
     }
 
     //region Equals

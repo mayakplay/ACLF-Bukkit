@@ -61,12 +61,8 @@ public class AddonTranslationContainer {
 
     @Nullable
     public String getTranslation(String key, String locale) {
-        System.out.println(key + " [" + key.length() + "] locale: " + locale);
-
         LocaleContainer localeContainer = langAssociationHashMap.get(locale);
         if (localeContainer == null) return null;
-
-        System.out.println("ok");
 
         return localeContainer.getByKey(key);
     }

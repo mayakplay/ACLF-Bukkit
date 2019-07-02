@@ -23,7 +23,6 @@ public class GSONArgumentProcessor implements ArgumentProcessor {
     @Override
     public Object parse(@NotNull String argumentMessage, Type returnType) throws ACLFException {
         try {
-            System.out.println(this.getClass().getSimpleName() + ":" + argumentMessage + " || " + returnType.getTypeName());
             return gson.fromJson("\"" + argumentMessage + "\"", returnType);
         } catch (Exception ignored) {
             return null;

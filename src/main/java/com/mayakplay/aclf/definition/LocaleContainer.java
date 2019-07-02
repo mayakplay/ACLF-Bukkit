@@ -23,9 +23,6 @@ class LocaleContainer {
     @Nullable
     String getByKey(@NotNull String key) {
         Objects.requireNonNull(key);
-
-        System.out.println(key + "[" + key.length() + "]");
-
         return keyTranslationHashMap.get(key);
     }
 

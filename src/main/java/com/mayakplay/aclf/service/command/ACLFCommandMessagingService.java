@@ -68,7 +68,12 @@ public class ACLFCommandMessagingService implements CommandMessagingService {
 
         Locale locale = ACLF.getServerLocale();
         if (sender instanceof Player) {
-            locale = LocaleUtils.toLocale(getLanguage((Player) sender));
+            String languageTag = getLanguage((Player) sender);
+            try {
+                locale = LocaleUtils.toLocale(languageTag);
+            } catch (Exception ignored) {
+                locale = Locale.forLanguageTag(languageTag);
+            }
             System.out.println("Player locale is " + locale.getDisplayName(locale));
         }
 

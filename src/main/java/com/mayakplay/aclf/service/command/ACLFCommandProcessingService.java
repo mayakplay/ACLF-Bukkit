@@ -1,6 +1,8 @@
 package com.mayakplay.aclf.service.command;
 
 import com.google.common.collect.ImmutableList;
+import com.mayakplay.aclf.ACLF;
+import com.mayakplay.aclf.AddonDefinition;
 import com.mayakplay.aclf.definition.ArgumentDefinition;
 import com.mayakplay.aclf.definition.CommandDefinition;
 import com.mayakplay.aclf.definition.response.CommandResponse;
@@ -8,6 +10,7 @@ import com.mayakplay.aclf.definition.response.ConsoleCommandResponse;
 import com.mayakplay.aclf.definition.response.PlayerCommandResponse;
 import com.mayakplay.aclf.event.ChannelCommandReceiveEvent;
 import com.mayakplay.aclf.exception.ACLFCommandException;
+import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.infrastructure.IncomingPluginMessageListener;
 import com.mayakplay.aclf.infrastructure.SenderScopeContext;
 import com.mayakplay.aclf.infrastructure.SenderScopeRunnable;
@@ -26,7 +29,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,7 +49,6 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     public static final String COMMAND_REGEX = " ";
 
     //region Construction
-    private final AnnotationConfigApplicationContext context;
     private final CommandSenderScopeService senderScopeService;
     private final CommandContainerService containerService;
     private final CommandMessagingService messagingService;
@@ -56,6 +57,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     @Override
     public CommandProcessOutput handle(String message, CommandSender sender, SenderType senderType) {
         val definition = containerService.getDefinitionByMessage(message);
+
 
         if (definition == null) return CommandProcessOutput.COMMAND_DOES_NOT_FOUND;
 
@@ -106,17 +108,33 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     }
 
     private void invoke(CommandDefinition definition, CommandSender sender, List<Object> argumentsObjectsList) {
+
         SenderScopeContext scopeContext = senderScopeService.getContextFor(sender);
+
         if (scopeContext == null) return;
 
         SenderScopeRunnable runnable = () -> {
+            assert ACLF.getAddonDefinitionScanner() != null;
+            AddonDefinition definitionByPlugin = ACLF.getAddonDefinitionScanner().getDefinitionByPlugin(definition.getPlugin());
 
-            Object bean = context.getBean(definition.getControllerClass());
+            if (definitionByPlugin == null) {
+                throw new ACLFCriticalException("NOTE ME ABOUT THIS EXCEPTION! https://github.com/mayakplay");
+            }
+
+            Object bean = definitionByPlugin
+                    .getContext()
+                    .getBean(
+                            definition
+                                    .getControllerClass()
+                    );
+
             definition.getCommandMethod().invoke(bean, argumentsObjectsList.toArray());
 
         };
 
         scopeContext.getSenderScopeThread().handleCallback(runnable);
+
+
     }
 
 
@@ -277,7 +295,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     private void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
         CommandProcessOutput process = handle(event.getMessage().substring(1), event.getPlayer(), SenderType.PLAYER_CHAT);
 
-        if (process.equals(CommandProcessOutput.OK)) event.setCancelled(true);
+        if (!process.equals(CommandProcessOutput.COMMAND_DOES_NOT_FOUND)) event.setCancelled(true);
     }
 
     /**
@@ -291,7 +309,7 @@ public class ACLFCommandProcessingService implements Listener, CommandProcessing
     private void serverCommandEvent(ServerCommandEvent event) {
         CommandProcessOutput process = handle(event.getCommand(), event.getSender(), SenderType.CONSOLE);
 
-        if (process.equals(CommandProcessOutput.OK)) event.setCommand("aclf");
+        if (!process.equals(CommandProcessOutput.COMMAND_DOES_NOT_FOUND)) event.setCommand(ACLFCommandContainerService.EMPTY_COMMAND_NAME);
     }
 
     /**
