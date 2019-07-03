@@ -4,11 +4,14 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mayakplay.aclf.annotation.*;
+import com.mayakplay.aclf.definition.response.ConsoleCommandResponse;
+import com.mayakplay.aclf.definition.response.PlayerCommandResponse;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
 import com.mayakplay.aclf.service.command.CommandContainerService;
 import com.mayakplay.aclf.type.DefinitionFlag;
 import com.mayakplay.aclf.type.MappingAccess;
 import lombok.*;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,7 +73,7 @@ public class CommandDefinition {
         final Permitted permitted                     = AnnotatedElementUtils.getMergedAnnotation(commandMethod, Permitted.class);
         final OpsOnly opsOnly                         = AnnotatedElementUtils.getMergedAnnotation(commandMethod, OpsOnly.class);
         final TailArgumentCommand tailArgumentCommand = AnnotatedElementUtils.getMergedAnnotation(commandMethod, TailArgumentCommand.class);
-        final AsyncCommand mergedAnnotation = AnnotatedElementUtils.getMergedAnnotation(commandMethod, AsyncCommand.class);
+        final AsyncCommand mergedAnnotation           = AnnotatedElementUtils.getMergedAnnotation(commandMethod, AsyncCommand.class);
 
         //command definition fields measure
         final String commandName            = commandMapping.value();
@@ -98,6 +101,19 @@ public class CommandDefinition {
 
         //Argument definitions list
         List<ArgumentDefinition> list = ArgumentDefinition.of(commandDefinition, commandContainerService);
+
+        //region Searching for player or console only args and setting flags
+        for (ArgumentDefinition definition : list) {
+            if (definition.getParameter().getType().equals(PlayerCommandResponse.class)) flags.add(DefinitionFlag.PLAYER_SENDER_ONLY);
+            if (definition.getParameter().getType().equals(ConsoleCommandResponse.class)) flags.add(DefinitionFlag.CONSOLE_SENDER_ONLY);
+        }
+        //endregion
+
+        //region Throw if both of sender types found
+        if (flags.contains(DefinitionFlag.CONSOLE_SENDER_ONLY) && flags.contains(DefinitionFlag.PLAYER_SENDER_ONLY)) {
+            throw new ACLFCriticalException("Command must contain only one type of response! " + ChatColor.AQUA + "\"" + commandDefinition.getCommandName() + "\"");
+        }
+        //endregion
 
         commandDefinition.argumentDefinitions.addAll(list);
 

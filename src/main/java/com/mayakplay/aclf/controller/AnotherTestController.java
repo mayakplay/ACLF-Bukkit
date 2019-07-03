@@ -1,6 +1,8 @@
 package com.mayakplay.aclf.controller;
 
-import com.mayakplay.aclf.annotation.*;
+import com.mayakplay.aclf.annotation.AsyncCommand;
+import com.mayakplay.aclf.annotation.CommandController;
+import com.mayakplay.aclf.annotation.CommandMapping;
 import com.mayakplay.aclf.definition.response.CommandResponse;
 
 /**
@@ -14,7 +16,7 @@ public class AnotherTestController {
 
     @AsyncCommand
     @CommandMapping("a")
-    public void something(CommandResponse response) {
+    public void something(CommandResponse response1) {
 
         System.out.println(Thread.currentThread());
 
