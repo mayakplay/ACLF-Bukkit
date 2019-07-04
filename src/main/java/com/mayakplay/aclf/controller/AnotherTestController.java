@@ -3,7 +3,10 @@ package com.mayakplay.aclf.controller;
 import com.mayakplay.aclf.annotation.AsyncCommand;
 import com.mayakplay.aclf.annotation.CommandController;
 import com.mayakplay.aclf.annotation.CommandMapping;
-import com.mayakplay.aclf.definition.response.CommandResponse;
+import com.mayakplay.aclf.definition.response.PlayerCommandResponse;
+import com.mayakplay.aclf.resource.ResourceRepository;
+import com.mayakplay.aclf.resource.SomeResource;
+import lombok.AllArgsConstructor;
 
 /**
  * @author mayakplay
@@ -12,14 +15,16 @@ import com.mayakplay.aclf.definition.response.CommandResponse;
  */
 @CommandController
 @CommandMapping("test")
+@AllArgsConstructor
 public class AnotherTestController {
+
+    private final ResourceRepository<SomeResource> resourceRepository;
 
     @AsyncCommand
     @CommandMapping("a")
-    public void something(CommandResponse response1) {
+    public void something(PlayerCommandResponse response1) {
 
-        System.out.println(Thread.currentThread());
-
+        resourceRepository.sendToPlayer(new SomeResource(), response1.getSender());
     }
 
     @CommandMapping("o")

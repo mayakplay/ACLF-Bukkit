@@ -2,10 +2,12 @@ package com.mayakplay.aclf;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.mayakplay.aclf.annotation.ACLFConfiguration;
 import com.mayakplay.aclf.event.AddonsContextsRefreshEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
+import com.mayakplay.aclf.exception.ACLFException;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import com.mayakplay.aclf.util.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -48,7 +50,7 @@ public class AddonDefinitionScanner {
     AddonDefinitionScanner() {
         mainContext = new AnnotationConfigApplicationContext();
 
-        pluginHashMap =          ImmutableMap.copyOf(scanForClassLoaders());
+        pluginHashMap = ImmutableMap.copyOf(scanForClassLoaders());
         addonDefinitionHashMap = ImmutableMap.copyOf(getAddonDefinitionMap());
 
         for (Map.Entry<ClassLoader, AddonDefinition> entry : addonDefinitionHashMap.entrySet()) {
@@ -116,7 +118,6 @@ public class AddonDefinitionScanner {
 
             addonContext.setParent(mainContext);
 //            addonContext.refresh();
-
 
 
             refreshContext(addonDefinition);
@@ -243,4 +244,9 @@ public class AddonDefinitionScanner {
         ClassLoader classLoader = pluginClass.getClassLoader();
         return pluginHashMap.getOrDefault(classLoader, null);
     }
+
+    public Set<AddonDefinition> getAddonDefinitionSet() {
+        return ImmutableSet.copyOf(addonDefinitionHashMap.values());
+    }
+
 }
