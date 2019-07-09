@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.mayakplay.aclf.annotation.ACLFConfiguration;
 import com.mayakplay.aclf.event.AddonsContextsRefreshEvent;
 import com.mayakplay.aclf.exception.ACLFCriticalException;
-import com.mayakplay.aclf.exception.ACLFException;
 import com.mayakplay.aclf.infrastructure.InfrastructurePostProcessor;
 import com.mayakplay.aclf.util.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -46,6 +45,12 @@ public class AddonDefinitionScanner {
      * ACLF spring mainContext.
      */
     private AnnotationConfigApplicationContext mainContext;
+
+    /**
+     * ACLF addon definition
+     */
+    @NotNull
+    private static AddonDefinition mainDef = new AddonDefinition(ACLF.class.getClassLoader(), ACLF.getACLF(), null);
 
     AddonDefinitionScanner() {
         mainContext = new AnnotationConfigApplicationContext();
@@ -219,8 +224,6 @@ public class AddonDefinitionScanner {
 
         return configurationClasses;
     }
-
-    private static AddonDefinition mainDef = new AddonDefinition(ACLF.class.getClassLoader(), ACLF.getACLF(), null);
 
     private AddonDefinition getMainDef() {
         mainDef.setContext(mainContext);

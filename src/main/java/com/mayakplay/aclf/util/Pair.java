@@ -7,6 +7,11 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * from spring.data
+ * @param <S>
+ * @param <T>
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,9 +22,6 @@ public final class Pair<S, T> {
 
     /**
      * Creates a new {@link Pair for the given elements.
-     *
-     * @param first must not be {@literal null}.
-     * @param second must not be {@literal null}.
      */
     public static <S, T> Pair<S, T> of(S first, T second) {
         return new Pair<>(first, second);

@@ -23,14 +23,11 @@ public class AnotherTestController {
     @AsyncCommand
     @CommandMapping("a")
     public void something(PlayerCommandResponse response1) {
-
         resourceRepository.sendToPlayer(new SomeResource(), response1.getSender());
     }
 
     @CommandMapping("o")
     public void something1() throws InterruptedException {
-
         System.out.println(Thread.currentThread());
-
     }
 }

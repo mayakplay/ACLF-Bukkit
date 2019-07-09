@@ -25,6 +25,11 @@ public final class ACLF extends JavaPlugin {
 
     private static final Locale serverLocale = Locale.US;
 
+    /**
+     * Plugins with ACLF dependency in 'plugin.yml'
+     */
+    private List<Plugin> dependentPlugins;
+
     @NotNull
     public synchronized static ACLF getACLF() {
         return JavaPlugin.getPlugin(ACLF.class);
@@ -44,11 +49,6 @@ public final class ACLF extends JavaPlugin {
     public static AddonDefinitionScanner getAddonDefinitionScanner() {
         return addonDefinitionContainer;
     }
-
-    /**
-     * Plugins with ACLF dependency in 'plugin.yml'
-     */
-    private List<Plugin> dependentPlugins;
 
     @Override
     public void onEnable() {
@@ -117,7 +117,6 @@ public final class ACLF extends JavaPlugin {
         String message2 = ChatColor.GOLD + "- addons candidates: " + ChatColor.YELLOW + candidatesCount + ChatColor.AQUA;
         String message3 = ChatColor.GOLD + "- current language: " + ChatColor.YELLOW + language + ChatColor.AQUA;
         String message4 = ChatColor.GOLD + "- server name: " + ChatColor.YELLOW + serverName + ChatColor.AQUA;
-
         Bukkit.getConsoleSender().sendMessage(
                 ChatColor.AQUA + "\n" +
                 "========================================================================================================================\n" +

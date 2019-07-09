@@ -21,6 +21,8 @@ import java.util.HashMap;
  */
 public class ReflectionUtils {
 
+    private static final HashMap<ClassLoader, Reflections> reflectionsMap = new HashMap<>();
+
     @Nullable
     public static Class<?> getMethodCallerClass() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -43,8 +45,6 @@ public class ReflectionUtils {
         modifiersField.setAccessible(true);
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
-
-    private static final HashMap<ClassLoader, Reflections> reflectionsMap = new HashMap<>();
 
     public static Reflections getReflectionsFor(ClassLoader classLoader, String mainClassPackage) {
         if (reflectionsMap.containsKey(classLoader)) return reflectionsMap.get(classLoader);
