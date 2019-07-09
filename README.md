@@ -1,6 +1,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/39247c49b08841528a5ee61f41642fc5)](https://www.codacy.com/app/mayakplay/ACLF-Bukkit?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mayakplay/ACLF-Bukkit&amp;utm_campaign=Badge_Grade)
 
 ## TODOs:
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f4a9a9e00c4840d9a83a00f0b050945c)](https://app.codacy.com/app/mayakplay/ACLF-Bukkit?utm_source=github.com&utm_medium=referral&utm_content=mayakplay/ACLF-Bukkit&utm_campaign=Badge_Grade_Dashboard)
+
 | Plan  | Status  |
 | ------------ | ------------ |
 |Registration of Spring Addon Configurations|`complete`|
