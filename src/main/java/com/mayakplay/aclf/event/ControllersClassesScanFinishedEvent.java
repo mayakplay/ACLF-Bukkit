@@ -9,7 +9,7 @@ import java.util.Map;
  * @version 0.0.1
  * @since 22.06.2019.
  */
-public class ControllersClassesScanFinishedEvent extends ApplicationEvent {
+public final class ControllersClassesScanFinishedEvent extends ApplicationEvent {
 
     /**
      * Create a new ApplicationEvent.

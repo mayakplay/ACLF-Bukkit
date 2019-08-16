@@ -49,7 +49,7 @@ public class ReflectionUtils {
     public static Reflections getReflectionsFor(ClassLoader classLoader, String mainClassPackage) {
         if (reflectionsMap.containsKey(classLoader)) return reflectionsMap.get(classLoader);
 
-        return new Reflections(new ConfigurationBuilder()
+        final Reflections reflections = new Reflections(new ConfigurationBuilder()
                 .setScanners(
                         new SubTypesScanner(false),
                         new ResourcesScanner(),
@@ -59,6 +59,10 @@ public class ReflectionUtils {
                 .filterInputsBy(
                         new FilterBuilder().include(FilterBuilder.prefix(mainClassPackage)))
         );
+
+        reflectionsMap.put(classLoader, reflections);
+
+        return reflections;
     }
 
     public static String packageFromClassName(String className) {

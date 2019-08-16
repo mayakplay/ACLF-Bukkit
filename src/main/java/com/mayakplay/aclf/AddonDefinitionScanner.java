@@ -18,7 +18,6 @@ import org.reflections.Reflections;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
