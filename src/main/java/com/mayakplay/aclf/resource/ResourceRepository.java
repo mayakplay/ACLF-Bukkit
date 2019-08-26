@@ -14,7 +14,6 @@ import java.util.Objects;
 
 /**
  * @author mayakplay
- * @version 0.0.1
  * @since 01.07.2019.
  */
 @Component
